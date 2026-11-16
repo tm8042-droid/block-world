@@ -896,7 +896,7 @@ function addMob(type,x,z){x=Math.floor(x);z=Math.floor(z);if(x<1||z<1||x>=BW-1||
  D.build(e);scene.add(e.g);mobs.push(e);return e}
 function removeMob(e){scene.remove(e.g);e.g.traverse(o=>{if(o.geometry)o.geometry.dispose()});e.mats.forEach(m=>m.dispose());const i=mobs.indexOf(e);if(i>=0)mobs.splice(i,1)}
 function resetMobs(){for(const e of mobs.slice())removeMob(e);for(const a of arrows)scene.remove(a.m);arrows.length=0;let n=0;
- for(let k=0;k<2500&&n<44;k++){const t=['pig','cow','sheep','chicken'][k%4],near=k%2===0;if(addMob(t,near?P.x+(Math.random()-.5)*90:8+Math.random()*(BW-16),near?P.z+(Math.random()-.5)*90:8+Math.random()*(BD-16)))n++}}
+ for(let k=0;k<2500&&n<52;k++){const t=['pig','cow','sheep','cow','chicken','cow'][k%6],near=Math.random()<.5;if(addMob(t,near?P.x+(Math.random()-.5)*90:8+Math.random()*(BW-16),near?P.z+(Math.random()-.5)*90:8+Math.random()*(BD-16)))n++}}
 function tone(type,f0,f1,dur,vol,delay){if(!AC||vol<=.001)return;try{const t=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(OUT());o.start(t);o.stop(t+dur+.02)}catch(e){}}
 function msfx(e,k){const d=Math.hypot(e.x-P.x,e.y-P.y,e.z-P.z);if(d>24)return;const v=1-d/24;
  ({pig:()=>{tone('square',280,210,.12,.04*v);tone('square',260,200,.12,.04*v,.16)},cow:()=>tone('sawtooth',135,92,.75,.07*v),sheep:()=>{tone('sawtooth',430,390,.45,.045*v);tone('sine',440,400,.45,.03*v)},
@@ -915,7 +915,7 @@ function stepDying(dt){for(let i=dying.length-1;i>=0;i--){const e=dying[i];e.die
 function hurtMob(e,d,dir,kb=1){if(!mobs.includes(e)||d<=0||e.hurtT>.12)return;e.hp-=d;e.hurtT=.45;msfx(e,'hurt');
  if(dir){const l=Math.hypot(dir.x,dir.z)||1,km=MT[e.type].hostile?.6:.3;e.vx+=dir.x/l*7*kb*km;e.vz+=dir.z/l*7*kb*km;e.vy=Math.max(e.vy,(3.2+2*kb)*(MT[e.type].hostile?.75:.45))}
  if(!MT[e.type].hostile)e.fleeT=4;if(e.type==='mush')e.fuse=0;
- if(e.hp<=0){const DR={pig:['pork',1,3],cow:['beef',1,3],sheep:['mutton',1,2],chicken:['chicken',1,1]}[e.type];if(DR){const n=DR[1]+Math.floor(Math.random()*(DR[2]-DR[1]+1));for(let i=0;i<n;i++)dropItem('food',DR[0],e.x,e.y+.5,e.z)}if(e.type==='sheep')for(let i=0,n=1+(Math.random()<.4?1:0);i<n;i++)dropItem('mat','wool',e.x,e.y+.6,e.z);if(e.type==='cow')for(let i=0,n=Math.floor(Math.random()*3);i<n;i++)dropItem('mat','leather',e.x,e.y+.6,e.z);if(e.type==='chicken')for(let i=0,n=Math.floor(Math.random()*3);i<n;i++)dropItem('mat','feather',e.x,e.y+.5,e.z);dieMob(e)}}
+ if(e.hp<=0){const DR={pig:['pork',1,3],cow:['beef',1,3],sheep:['mutton',1,2],chicken:['chicken',1,1]}[e.type];if(DR){const n=DR[1]+Math.floor(Math.random()*(DR[2]-DR[1]+1));for(let i=0;i<n;i++)dropItem('food',DR[0],e.x,e.y+.5,e.z)}if(e.type==='sheep')for(let i=0,n=1+(Math.random()<.4?1:0);i<n;i++)dropItem('mat','wool',e.x,e.y+.6,e.z);if(e.type==='cow')for(let i=0,n=1+Math.floor(Math.random()*2);i<n;i++)dropItem('mat','leather',e.x,e.y+.6,e.z);if(e.type==='chicken')for(let i=0,n=Math.floor(Math.random()*3);i<n;i++)dropItem('mat','feather',e.x,e.y+.5,e.z);dieMob(e)}}
 function shootArrow(e){const sx=e.x,sy=e.y+1.5,sz=e.z,dx=P.x-sx,dy=P.y+1.2-sy,dz=P.z-sz,dist=Math.hypot(dx,dz),t=Math.max(.3,dist/15);
  const m=new THREE.Mesh(new THREE.BoxGeometry(.05,.05,.6),LM('#8a6a40'));m.position.set(sx,sy,sz);scene.add(m);
  arrows.push({x:sx,y:sy,z:sz,vx:dx/t+(Math.random()-.5),vy:dy/t+5*t,vz:dz/t+(Math.random()-.5),m,l:5});msfx(e,'bow')}
@@ -962,7 +962,7 @@ function stepMobs(dt){for(const e of mobs.slice())updMob(e,dt);stepArrows(dt);
  regenT+=dt;if(regenT>DIFF[diff].regen){regenT=0;if(hp<20&&hp>0){hp++;drawHearts()}}
  spawnT-=dt;if(spawnT>0)return;spawnT=DIFF[diff].spawn;
  const animals=mobs.filter(e=>!MT[e.type].hostile&&e.type!=='villager').length,host=mobs.filter(e=>MT[e.type].hostile);
- if(animals<18){const a=Math.random()*6.28,r=26+Math.random()*20;addMob(['pig','cow','sheep','chicken'][Math.random()*4|0],P.x+Math.cos(a)*r,P.z+Math.sin(a)*r)}
+ if(animals<24){const a=Math.random()*6.28,r=26+Math.random()*20,cows=mobs.filter(e=>e.type==='cow'&&Math.hypot(e.x-P.x,e.z-P.z)<60).length;addMob(cows<5||Math.random()<.45?'cow':['pig','sheep','chicken'][Math.random()*3|0],P.x+Math.cos(a)*r,P.z+Math.sin(a)*r)}
  {const V=ISL.find(i=>i.t==='village');let need=6-mobs.filter(e=>e.type==='villager').length;if(V&&need>0&&Math.hypot(V.x-P.x,V.z-P.z)<80){for(let k=0;k<60&&need>0;k++){const a=Math.random()*6.28,r=4+Math.random()*V.r*.55,m=addMob('villager',V.x+Math.cos(a)*r,V.z+Math.sin(a)*r);if(m){m.home={x:V.x,z:V.z,r:V.r*.6};need--}}}}
  for(const e of host)if(Math.hypot(e.x-P.x,e.z-P.z)>64)removeMob(e);
  if(monsters&&nightNow&&host.length<DIFF[diff].max){const a=Math.random()*6.28,r=16+Math.random()*16,rr=Math.random();addMob(rr<.35?'zombie':rr<.6?'skeleton':rr<.8?'spider':'mush',P.x+Math.cos(a)*r,P.z+Math.sin(a)*r)}}
@@ -985,6 +985,8 @@ function physics(dt){if(boostCd>0)boostCd-=dt;if(P.glide){glideStep(dt);return}i
  P.vy=Math.max(P.vy,-42);
  const wasG=P.ground;if(P.fly||inW)P.top=P.y;else if(!wasG)P.top=Math.max(P.top??P.y,P.y);else P.top=P.y;
  const hx=move('x',P.vx*dt),hz=move('z',P.vz*dt);
+ if((hx||hz)&&!P.fly&&(l>.2||jump)){const fx=Math.floor(P.x),fz=Math.floor(P.z),wet=inW||get(fx,Math.floor(P.y-.05),fz)===WATER||get(fx,Math.floor(P.y+.1),fz)===WATER;
+  if(wet){const tx=Math.floor(P.x+Math.sign(hx?(P.vx||wx):0)*.6),tz=Math.floor(P.z+Math.sign(hz?(P.vz||wz):0)*.6),ty=Math.floor(P.y+.5);if(!solidAt(tx,ty+1,tz)&&!solidAt(fx,ty+2,fz))P.vy=Math.max(P.vy,7.6);else if(inW)P.vy=Math.max(P.vy,3.2)}}
  P.ground=false;move('y',P.vy*dt);
  if(!wasG&&P.ground&&!P.fly&&!inW){const fd=(P.top??P.y)-P.y;if(fd>1.2){landDip=Math.min(.28,fd*.045);const lid=get(Math.floor(P.x),Math.floor(P.y-.2),Math.floor(P.z));if(lid)sfx('place',lid)}if(fd>3.6)hurtP(Math.floor(fd-3),null,'높은 곳에서 떨어졌어요');P.top=P.y}
  if((hx||hz)&&wasG&&!P.fly&&l>.2&&isTouch()){const y=Math.floor(P.y)+1;if(!solidAt(Math.floor(P.x+Math.sign(P.vx||wx)*.6),y+1,Math.floor(P.z+Math.sign(P.vz||wz)*.6)))P.vy=8.7}
