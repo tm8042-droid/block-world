@@ -335,11 +335,11 @@ const BOATC=(()=>{const m=[],c=[176,128,72],dk=[110,76,40];for(let y=7;y<13;y++)
 const ATIER={leather:{n:'가죽',c:[150,94,52],m:'leather',pts:[1,3,2,1]},iron:{n:'철',c:[214,214,220],m:'iron',pts:[2,6,5,2]},gold:{n:'금',c:[240,200,64],m:'gold',pts:[2,5,3,1]},diamond:{n:'다이아몬드',c:[78,222,212],m:'diamond',pts:[3,8,6,3]}};
 const APC=[{k:'head',n:'투구',cost:5},{k:'chest',n:'갑옷',cost:8},{k:'legs',n:'바지',cost:7},{k:'feet',n:'부츠',cost:4}];
 for(const t in ATIER)APC.forEach((pc,i)=>{ITEM['ar_'+pc.k+'_'+t]={kind:'armor',slot:pc.k,si:i,tier:t,n:ATIER[t].n+' '+pc.n}});
-let armorOwn=[],worn={head:null,chest:null,legs:null,feet:null};
-ITEM.elytra={kind:'armor',slot:'chest',si:1,tier:'elytra',n:'겉날개'};
+let armorOwn=[],worn={head:null,chest:null,legs:null,feet:null,back:null};
+ITEM.elytra={kind:'armor',slot:'back',si:1,tier:'elytra',n:'겉날개'};
 const ELYC=(()=>{const m=[];for(let y=1;y<15;y++)for(let x=1;x<15;x++){const L=x<8,dx=L?7-x:x-8,ok=dx<=Math.min(6,(y+1)*.7)&&y<=14-dx*.5&&!(dx<1&&y>3);if(ok)m.push([x,y,dx===0||y===14-Math.floor(dx*.5)?[70,70,95]:(x+y)%4===0?[175,175,205]:[135,135,170]])}return m})();
 const armorPts=()=>Object.values(worn).reduce((a,k)=>a+(k&&k!=='elytra'?ATIER[ITEM[k].tier].pts[ITEM[k].si]:0),0);
-const hasWings=()=>worn.chest==='elytra';
+const hasWings=()=>worn.back==='elytra';
 function armorCells(key){if(key==='elytra')return ELYC;const it=ITEM[key],c=ATIER[it.tier].c,dk=c.map(v=>v*.6),hl=c.map(v=>Math.min(255,v*1.2)),m=[];
  const inS={head:(x,y)=>y>=3&&y<=11&&x>=2&&x<=13&&!(y>=7&&x>=4&&x<=11),chest:(x,y)=>y>=2&&y<=14&&x>=1&&x<=14&&!(y<4&&x>=5&&x<=10)&&!(y>=8&&(x<4||x>11)),
   legs:(x,y)=>y>=2&&y<=14&&x>=3&&x<=12&&!(y>=6&&x>=7&&x<=8),feet:(x,y)=>y>=7&&y<=13&&((x>=1&&x<=6)||(x>=9&&x<=14))&&!(y<10&&(x===1||x===14))}[it.slot];
@@ -900,7 +900,7 @@ function applySave(s){if(!s||typeof s.seed!=='number')return false;const oldV=s.
 seed=s.seed;edits=s.edits||{};generate();
  for(const k in edits){const i=+k;if(i>=0&&i<world.length)world[i]=edits[k]}rebuildAll();
  if(Array.isArray(s.p)){[P.x,P.y,P.z,P.yaw,P.pitch]=s.p;P.fly=!!s.p[5];document.body.classList.toggle('flying',P.fly)}else spawn();
- if(Array.isArray(s.hot)&&s.hot.length===9&&s.hot.every(v=>typeof v==='number'?B[v]:ITEM[v]))hot=s.hot;if(s.mats)for(const k in mats)mats[k]=+s.mats[k]||0;if(Array.isArray(s.tools))tools=s.tools.filter(k=>ITEM[k]);tableOn=!!s.tableOn;bedOn=!!s.bedOn;if(s.food)for(const k in food)food[k]=+s.food[k]||0;if(Array.isArray(s.armorOwn))armorOwn=s.armorOwn.filter(k=>ITEM[k]&&ITEM[k].kind==='armor');if(s.worn)for(const k in worn)worn[k]=s.worn[k]&&ITEM[s.worn[k]]?s.worn[k]:null;diff=typeof s.diff==='number'?Math.max(0,Math.min(3,s.diff)):s.mon===false?0:1;monsters=diff>0;sel=s.sel||0;if(typeof s.day==='number')dayT=s.day;if(Array.isArray(s.home))home=s.home;if(s.mon===false)monsters=false;if(typeof s.hp==='number')hp=Math.max(1,Math.min(20,s.hp));if(diff>0){P.fly=false;document.body.classList.remove('flying')}P.glide=false;if(Array.isArray(s.boats))for(const q of s.boats)addBoat(q[0],q[1],q[2],q[3]);if(oldV)setTimeout(()=>tip('섬들이 넓어져서 새 지형으로 시작해요 — 가방·도구·갑옷은 그대로예요',5000),800);return true}
+ if(Array.isArray(s.hot)&&s.hot.length===9&&s.hot.every(v=>typeof v==='number'?B[v]:ITEM[v]))hot=s.hot;if(s.mats)for(const k in mats)mats[k]=+s.mats[k]||0;if(Array.isArray(s.tools))tools=s.tools.filter(k=>ITEM[k]);tableOn=!!s.tableOn;bedOn=!!s.bedOn;if(s.food)for(const k in food)food[k]=+s.food[k]||0;if(Array.isArray(s.armorOwn))armorOwn=s.armorOwn.filter(k=>ITEM[k]&&ITEM[k].kind==='armor');if(s.worn)for(const k in worn)worn[k]=s.worn[k]&&ITEM[s.worn[k]]?s.worn[k]:null;if(worn.chest==='elytra'){worn.chest=null;worn.back='elytra'}diff=typeof s.diff==='number'?Math.max(0,Math.min(3,s.diff)):s.mon===false?0:1;monsters=diff>0;sel=s.sel||0;if(typeof s.day==='number')dayT=s.day;if(Array.isArray(s.home))home=s.home;if(s.mon===false)monsters=false;if(typeof s.hp==='number')hp=Math.max(1,Math.min(20,s.hp));if(diff>0){P.fly=false;document.body.classList.remove('flying')}P.glide=false;if(Array.isArray(s.boats))for(const q of s.boats)addBoat(q[0],q[1],q[2],q[3]);if(oldV)setTimeout(()=>tip('섬들이 넓어져서 새 지형으로 시작해요 — 가방·도구·갑옷은 그대로예요',5000),800);return true}
 function load(){try{return applySave(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return false}}
 setInterval(()=>{if(!paused)saveDirty=true;save()},4000);
 addEventListener('pagehide',()=>save(true));
@@ -1274,8 +1274,8 @@ let avArmor=[],avWings=[];const avAM=t=>new THREE.MeshLambertMaterial({map:t});
 function buildArmorOn(doll,dP,dm,dArmor,dWings){const dHead=dP.head,dArmR=dP.armR,dArmL=dP.armL,dLegR=dP.legR,dLegL=dP.legL;
  const add=(parent,w,h,d,t,x,y,z,mats)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mats||dm(armTex(t)));m.position.set(x,y,z);parent.add(m);dArmor.push(m);return m};
  if(worn.head){const t=ITEM[worn.head].tier,a=dm(armTex(t)),o=new THREE.MeshLambertMaterial({transparent:true,opacity:0});add(dHead,.58,.3,.58,t,0,.41,0,[a,a,a,a,a,a]);add(dHead,.58,.2,.1,t,0,.15,-.26);add(dHead,.08,.2,.58,t,.27,.15,0);add(dHead,.08,.2,.58,t,-.27,.15,0)}
- if(worn.chest==='elytra'){const wm=dm(ftex(8,8,x=>{px(x,'#8787aa',0,0,8,8);px(x,'#5a5a78',0,0,1,8);px(x,'#afafcd',3,2,1,4);px(x,'#afafcd',5,1,1,5)}));for(const sd of[1,-1]){const g=new THREE.Group();g.position.set(sd*.12,1.45,-.14);doll.add(g);dArmor.push(g);const w=new THREE.Mesh(new THREE.BoxGeometry(.38,.95,.06),wm);w.position.set(sd*.17,-.45,0);g.add(w);g.userData.sd=sd;dWings.push(g)}}
- else if(worn.chest){const t=ITEM[worn.chest].tier;add(doll,.58,.8,.33,t,0,1.12,0);for(const a of[dArmR,dArmL])add(a,.31,.36,.31,t,0,-.15,0)}
+if(worn.back==='elytra'){const wm=dm(ftex(8,8,x=>{px(x,'#8787aa',0,0,8,8);px(x,'#5a5a78',0,0,1,8);px(x,'#afafcd',3,2,1,4);px(x,'#afafcd',5,1,1,5)}));for(const sd of[1,-1]){const g=new THREE.Group();g.position.set(sd*.12,1.45,worn.chest?-.2:-.14);doll.add(g);dArmor.push(g);const w=new THREE.Mesh(new THREE.BoxGeometry(.38,.95,.06),wm);w.position.set(sd*.17,-.45,0);g.add(w);g.userData.sd=sd;dWings.push(g)}}
+ if(worn.chest){const t=ITEM[worn.chest].tier;add(doll,.58,.8,.33,t,0,1.12,0);for(const a of[dArmR,dArmL])add(a,.31,.36,.31,t,0,-.15,0)}
  if(worn.legs){const t=ITEM[worn.legs].tier;add(doll,.56,.16,.3,t,0,.8,0);for(const l of[dLegR,dLegL])add(l,.29,.5,.29,t,0,-.25,0)}
  if(worn.feet){const t=ITEM[worn.feet].tier;for(const l of[dLegR,dLegL])add(l,.3,.24,.32,t,0,-.64,.02)}}
 
