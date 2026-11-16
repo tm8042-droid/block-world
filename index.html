@@ -1057,3 +1057,8 @@ for(const id of['mNew','mCont','respawn'])document.getElementById(id)?.addEventL
 document.addEventListener('pointerdown',()=>{if(on&&!isFs()&&document.getElementById('menu').hidden)enter()},true);
 lab()})()</script>
 </body></html>
+<script>(()=>{const b=document.getElementById('mFull');if(!b||!b.hidden)return;if(matchMedia('(display-mode: fullscreen),(display-mode: standalone)').matches)return;
+const ua=navigator.userAgent,kakao=/KAKAOTALK/i.test(ua),ios=/iPhone|iPad|iPod/i.test(ua);b.hidden=false;b.classList.remove('green');
+b.textContent=kakao?'꽉 찬 화면: 크롬에서 열기':'꽉 찬 화면 방법 보기';
+b.addEventListener('click',e=>{e.stopPropagation();if(kakao){location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(location.href);return}
+alert(ios?'아이폰은 공유 버튼 → "홈 화면에 추가"로 설치하면 꽉 찬 화면으로 할 수 있어요.':'이 브라우저는 꽉 찬 화면을 지원하지 않아요. 크롬으로 열어 주세요.')})})()</script>
