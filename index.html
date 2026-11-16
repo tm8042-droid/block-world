@@ -119,7 +119,7 @@ body.touch #boatPad{bottom:var(--jb)}
 .rc[disabled]{opacity:.45;cursor:default}
 .rc:not([disabled]):hover{background:#dcdcdc}
 #inv .sec{grid-column:1/-1;font-weight:700;color:#333;font-size:13px;margin-top:4px}
-.mbtn.d0{background:linear-gradient(#6fb6e0,#3a7fb0)}.mbtn.d1{background:linear-gradient(#e2b84a,#b07f1c)}.mbtn.d2{background:linear-gradient(#d0503e,#8e2318)}
+.mbtn.d0{background:linear-gradient(#6fb6e0,#3a7fb0)}.mbtn.d3{background:linear-gradient(#7fd06a,#3f9a3a)}.mbtn.d1{background:linear-gradient(#e2b84a,#b07f1c)}.mbtn.d2{background:linear-gradient(#d0503e,#8e2318)}
 #menu,#dead,#inv,#craft{z-index:10}#menu{overflow:auto;justify-content:safe center;background:linear-gradient(#0a1a30b0,#0a140acc)}
 @media (max-height:500px){.logo{font-size:44px}.sub{font-size:14px}.mbtn{min-height:42px;padding:6px 20px;font-size:15px}#menu{gap:8px;padding:12px}.help{font-size:12px;line-height:1.5}}
 .rsec{grid-column:1/-1;font-weight:700;font-size:14px;text-shadow:0 1px 0 #000;margin-top:6px;text-align:left}
@@ -889,7 +889,7 @@ function applySave(s){if(!s||typeof s.seed!=='number')return false;const oldV=s.
 seed=s.seed;edits=s.edits||{};generate();
  for(const k in edits){const i=+k;if(i>=0&&i<world.length)world[i]=edits[k]}rebuildAll();
  if(Array.isArray(s.p)){[P.x,P.y,P.z,P.yaw,P.pitch]=s.p;P.fly=!!s.p[5];document.body.classList.toggle('flying',P.fly)}else spawn();
- if(Array.isArray(s.hot)&&s.hot.length===9&&s.hot.every(v=>typeof v==='number'?B[v]:ITEM[v]))hot=s.hot;if(s.mats)for(const k in mats)mats[k]=+s.mats[k]||0;if(Array.isArray(s.tools))tools=s.tools.filter(k=>ITEM[k]);tableOn=!!s.tableOn;bedOn=!!s.bedOn;if(s.food)for(const k in food)food[k]=+s.food[k]||0;if(Array.isArray(s.armorOwn))armorOwn=s.armorOwn.filter(k=>ITEM[k]&&ITEM[k].kind==='armor');if(s.worn)for(const k in worn)worn[k]=s.worn[k]&&ITEM[s.worn[k]]?s.worn[k]:null;diff=typeof s.diff==='number'?Math.max(0,Math.min(2,s.diff)):s.mon===false?0:1;monsters=diff>0;sel=s.sel||0;if(typeof s.day==='number')dayT=s.day;if(Array.isArray(s.home))home=s.home;if(s.mon===false)monsters=false;if(typeof s.hp==='number')hp=Math.max(1,Math.min(20,s.hp));if(diff>0){P.fly=false;document.body.classList.remove('flying')}P.glide=false;if(Array.isArray(s.boats))for(const q of s.boats)addBoat(q[0],q[1],q[2],q[3]);if(oldV)setTimeout(()=>tip('섬들이 넓어져서 새 지형으로 시작해요 — 가방·도구·갑옷은 그대로예요',5000),800);return true}
+ if(Array.isArray(s.hot)&&s.hot.length===9&&s.hot.every(v=>typeof v==='number'?B[v]:ITEM[v]))hot=s.hot;if(s.mats)for(const k in mats)mats[k]=+s.mats[k]||0;if(Array.isArray(s.tools))tools=s.tools.filter(k=>ITEM[k]);tableOn=!!s.tableOn;bedOn=!!s.bedOn;if(s.food)for(const k in food)food[k]=+s.food[k]||0;if(Array.isArray(s.armorOwn))armorOwn=s.armorOwn.filter(k=>ITEM[k]&&ITEM[k].kind==='armor');if(s.worn)for(const k in worn)worn[k]=s.worn[k]&&ITEM[s.worn[k]]?s.worn[k]:null;diff=typeof s.diff==='number'?Math.max(0,Math.min(3,s.diff)):s.mon===false?0:1;monsters=diff>0;sel=s.sel||0;if(typeof s.day==='number')dayT=s.day;if(Array.isArray(s.home))home=s.home;if(s.mon===false)monsters=false;if(typeof s.hp==='number')hp=Math.max(1,Math.min(20,s.hp));if(diff>0){P.fly=false;document.body.classList.remove('flying')}P.glide=false;if(Array.isArray(s.boats))for(const q of s.boats)addBoat(q[0],q[1],q[2],q[3]);if(oldV)setTimeout(()=>tip('섬들이 넓어져서 새 지형으로 시작해요 — 가방·도구·갑옷은 그대로예요',5000),800);return true}
 function load(){try{return applySave(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return false}}
 setInterval(()=>{if(!paused)saveDirty=true;save()},4000);
 addEventListener('pagehide',()=>save(true));
@@ -948,7 +948,7 @@ document.querySelectorAll('[data-b]').forEach(b=>{const k=b.dataset.b;
  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,off))});
 
 /* ================= mobs ================= */
-let diff=1;const DIFF=[{n:'평화로움',dmg:0,max:0,spawn:9,regen:1,spd:1,d:'몬스터가 나오지 않고 체력이 빨리 차요'},{n:'약간 어려움',dmg:.6,max:5,spawn:3.5,regen:4,spd:1,d:'몬스터가 조금 나오고 약하게 때려요'},{n:'어려움',dmg:1.5,max:12,spawn:1.4,regen:7,spd:1.18,d:'몬스터가 많고 세고 빨라요!'}];
+let diff=1;const DIFF=[{n:'평화로움',dmg:0,max:0,spawn:9,regen:1,spd:1,d:'몬스터가 나오지 않고 체력이 빨리 차요'},{n:'약간 어려움',dmg:.6,max:5,spawn:3.5,regen:4,spd:1,d:'몬스터가 조금 나오고 약하게 때려요'},{n:'어려움',dmg:1.5,max:12,spawn:1.4,regen:7,spd:1.18,d:'몬스터가 많고 세고 빨라요!'},{n:'쉬움',dmg:.3,max:3,spawn:5.5,regen:2.5,spd:.85,d:'몬스터가 가끔 나오고 아주 약하게 때려요'}];
 let home=null,hp=20,pDead=false,monsters=true,dayNow=true,nightNow=false,regenT=0;
 const amb=new THREE.AmbientLight(0xffffff,.7),dl=new THREE.DirectionalLight(0xffffff,.5);scene.add(amb,dl);
 const heart=f=>`<svg viewBox="0 0 9 8"><path d="M1 0h2v1h1v1h1V1h1V0h2v1h1v3H8v1H7v1H6v1H5v1H4V7H3V6H2V5H1V4H0V1h1z" fill="#2a0a0a"/>${f?`<clipPath id="hc${f}"><rect width="${f===1?4.5:9}" height="8"/></clipPath><path clip-path="url(#hc${f})" d="M1 1h2v1h1v1h1V2h1V1h2v3H7v1H6v1H5v1H4V6H3V5H2V4H1z" fill="#e8282a"/><rect x="2" y="2" width="1" height="1" fill="#ffb3b3"/>`:''}</svg>`;
@@ -964,7 +964,7 @@ function hurtP(d,from,why){if(from){if(!DIFF[diff].dmg)return;d=Math.max(1,Math.
 $('respawn').onclick=()=>{hp=20;drawHearts();pDead=false;$('dead').hidden=true;[P.x,P.y,P.z]=home;P.vx=P.vy=P.vz=0;P.top=P.y;if(!isTouch())lockPointer()};
 function diffLabel(){$('mMob').textContent='난이도: '+DIFF[diff].n;$('mMob').className='mbtn d'+diff;$('diffNote').textContent=DIFF[diff].d}
 function setDiff(v){diff=v;if(diff>0&&P.fly){P.fly=false;document.body.classList.remove('flying')}monsters=diff>0;if(!monsters)for(const e of mobs.slice())if(MT[e.type].hostile)removeMob(e);diffLabel();saveDirty=true}
-$('mMob').onclick=()=>{setDiff((diff+1)%3)};
+$('mMob').onclick=()=>{setDiff({0:3,3:1,1:2,2:0}[diff])};
 function ftex(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');fn(x);const t=new THREE.CanvasTexture(c);t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;return t}
 const px=(x,c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(a,b,w||1,h||1)};
 const TX={
