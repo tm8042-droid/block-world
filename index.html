@@ -70,7 +70,7 @@ body.touch #btns .b{width:var(--fb);height:var(--fb);border-radius:50%;font-size
 body.touch #bFly{grid-area:x}body.touch #bBr{grid-area:y;background:#7a2a22cc}body.touch #bJ{grid-area:a;height:var(--fb);border-radius:50%}body.touch #bPl{grid-area:b;background:#24485ecc}
 body.touch.flying #bFly{background:#f2b33acc}
 body.touch #top{display:none}
-#bPlus{position:fixed;display:none;right:calc(18px + env(safe-area-inset-right) + var(--fb)*3 + 16px);bottom:calc(var(--jb) + var(--js) + 12px + var(--fb)*2 + (var(--fb) - 36px)/2);width:36px;height:36px;border-radius:50%;border:2px solid #ffffff90;background:#1a1a1acc;color:#fff;font:700 20px/1 "Noto Sans KR",sans-serif;padding:0}
+#bPlus{position:fixed;display:none;z-index:1;right:calc(10px + env(safe-area-inset-right));top:calc(10px + env(safe-area-inset-top));width:40px;height:40px;border-radius:50%;border:2px solid #ffffff90;background:#1a1a1acc;color:#fff;font:700 20px/1 "Noto Sans KR",sans-serif;padding:0}
 body.touch #bPlus{display:block}
 body.touch #btns .b,body.touch #dpad .d{position:relative;-webkit-user-select:none;user-select:none;touch-action:none}
 body.touch #btns .b::after{content:"";position:absolute;inset:-9px;border-radius:50%}
@@ -1206,7 +1206,7 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
  {const fl=diff===0?'날기':hasWings()?(P.glide?'부스트':'활공'):'날기';if(fl!==flLabel){flLabel=fl;$('bFly').textContent=fl;$('bFly').style.opacity=diff>0&&!hasWings()?.45:1}}
  {const tb=h?get(h.x,h.y,h.z):0,lb=riding?'내리기':!paused&&boatAt()?'타기':tb===BED?'자기':tb===TABLE?'제작':heldFood()?'먹기':hot[sel]==='boat'?'띄우기':'놓기';if(lb!==plLabel){plLabel=lb;$('bPl').textContent=lb}}
  {const on=view===1&&!paused&&!sleep&&!pDead;av.visible=on;if(on){av.position.set(P.x,P.y+(riding?.35:0),P.z);av.rotation.set(P.glide?1.15:P.fly?.35:0,P.yaw+Math.PI,0,'YXZ');
-   for(const k of['armR','armL','legR','legL'])avP[k].rotation.copy(dP[k].rotation);if(avItemKey!==hot[sel]){avItemKey=hot[sel];if(avItem){avP.armR.remove(avItem);if(avItem.geometry!==dropCube)avItem.geometry.dispose()}const it=avItemKey;if(typeof it==='string'){avItem=new THREE.Mesh(spriteGeo(cellsOf(it)),spriteMat);const rod=it==='rod';avItem.scale.setScalar(rod?1.25:.95);avItem.position.set(-.18,rod?-.45:-.55,.08);avItem.rotation.set(rod?-.5:0,.25,.15)}else{avItem=new THREE.Mesh(cubeGeo(it),handBlockMat);avItem.scale.setScalar(.34);avItem.position.set(-.24,-.8,.06);avItem.rotation.set(0,.6,0)}avP.armR.add(avItem)}avP.head.rotation.set(-P.pitch*.7,0,0);const hf=dHurt>0?.55:0;avMats.forEach(m=>m.emissive.setRGB(hf,0,0))}}
+   for(const k of['armR','armL','legR','legL'])avP[k].rotation.copy(dP[k].rotation);if(avItemKey!==hot[sel]){avItemKey=hot[sel];if(avItem){avP.armR.remove(avItem);avItem.traverse(o=>{if(o.geometry&&o.geometry!==dropCube)o.geometry.dispose()})}const it=avItemKey;avItem=new THREE.Group();avItem.position.set(0,-.68,.02);if(typeof it==='string'){const cl=cellsOf(it),m=new THREE.Mesh(spriteGeo(cl),spriteMat),k=ITEM[it]&&ITEM[it].kind,tool=it==='rod'||it==='bow'||k==='sword'||k==='pick'||k==='axe'||k==='shovel'||k==='hoe'||(ITEM[it]&&ITEM[it].tier&&k!=='armor'),sc=it==='rod'?.9:tool?.72:.5;let gx=8,gy=8,rz=0,tilt=.25;if(it==='bow'){gx=11;gy=11;rz=Math.PI/4;tilt=0}else if(it==='torch'){let e=cl[0];for(const c of cl)if(c[1]>e[1])e=c;gx=e[0]+.5;gy=e[1]-1.5;tilt=-.35}else if(tool){let e=cl[0];for(const c of cl)if(c[1]-c[0]>e[1]-e[0])e=c;gx=e[0]+2;gy=e[1]-1.5}const sg=new THREE.Group();sg.rotation.set(tilt,-Math.PI/2,0);const rg=new THREE.Group();rg.rotation.z=rz;sg.add(rg);m.scale.setScalar(sc);m.position.set(-(gx-8)/16*sc,-(7-gy)/16*sc,0);rg.add(m);avItem.add(sg)}else{const m=new THREE.Mesh(cubeGeo(it),handBlockMat);m.scale.setScalar(.3);m.position.set(0,-.08,.1);m.rotation.set(0,.6,0);avItem.add(m)}avP.armR.add(avItem)}avP.head.rotation.set(-P.pitch*.7,0,0);const hf=dHurt>0?.55:0;avMats.forEach(m=>m.emissive.setRGB(hf,0,0))}}
  renderer.clear();renderer.render(scene,camera);
  if(!paused&&!pDead){drawDoll(dt,L);const it=hot[sel];if(it!==heldKey)setHeld();equipT=Math.min(1,equipT+dt*5);if(swingT<1)swingT=Math.min(1,swingT+dt/.3);
   const sp=Math.hypot(P.vx,P.vz);if(P.ground&&!P.fly)bob+=sp*dt*2.2;const s=swingT,a1=Math.sin(Math.sqrt(s)*Math.PI),a2=Math.sin(s*Math.PI),a3=Math.sin(s*s*Math.PI);
@@ -1270,19 +1270,22 @@ const armTexCache={};
 function armTex(t){if(armTexCache[t])return armTexCache[t];const c=ATIER[t].c,col=`rgb(${c})`,dk=`rgb(${c.map(v=>v*.62|0)})`,hl=`rgb(${c.map(v=>Math.min(255,v*1.22)|0)})`;
  return armTexCache[t]=ftex(8,8,x=>{px(x,col,0,0,8,8);px(x,dk,0,0,8,1);px(x,dk,0,7,8,1);px(x,dk,0,0,1,8);px(x,dk,7,0,1,8);px(x,hl,2,2,2,1);px(x,hl,5,4,1,2)})}
 let dWings=[];
-function buildDollArmor(){for(const m of dArmor){m.parent.remove(m);if(m.geometry)m.geometry.dispose()}dArmor=[];dWings=[];
+let avArmor=[],avWings=[];const avAM=t=>new THREE.MeshLambertMaterial({map:t});
+function buildArmorOn(doll,dP,dm,dArmor,dWings){const dHead=dP.head,dArmR=dP.armR,dArmL=dP.armL,dLegR=dP.legR,dLegL=dP.legL;
  const add=(parent,w,h,d,t,x,y,z,mats)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mats||dm(armTex(t)));m.position.set(x,y,z);parent.add(m);dArmor.push(m);return m};
  if(worn.head){const t=ITEM[worn.head].tier,a=dm(armTex(t)),o=new THREE.MeshLambertMaterial({transparent:true,opacity:0});add(dHead,.58,.3,.58,t,0,.41,0,[a,a,a,a,a,a]);add(dHead,.58,.2,.1,t,0,.15,-.26);add(dHead,.08,.2,.58,t,.27,.15,0);add(dHead,.08,.2,.58,t,-.27,.15,0)}
  if(worn.chest==='elytra'){const wm=dm(ftex(8,8,x=>{px(x,'#8787aa',0,0,8,8);px(x,'#5a5a78',0,0,1,8);px(x,'#afafcd',3,2,1,4);px(x,'#afafcd',5,1,1,5)}));for(const sd of[1,-1]){const g=new THREE.Group();g.position.set(sd*.12,1.45,-.14);doll.add(g);dArmor.push(g);const w=new THREE.Mesh(new THREE.BoxGeometry(.38,.95,.06),wm);w.position.set(sd*.17,-.45,0);g.add(w);g.userData.sd=sd;dWings.push(g)}}
  else if(worn.chest){const t=ITEM[worn.chest].tier;add(doll,.58,.8,.33,t,0,1.12,0);for(const a of[dArmR,dArmL])add(a,.31,.36,.31,t,0,-.15,0)}
  if(worn.legs){const t=ITEM[worn.legs].tier;add(doll,.56,.16,.3,t,0,.8,0);for(const l of[dLegR,dLegL])add(l,.29,.5,.29,t,0,-.25,0)}
  if(worn.feet){const t=ITEM[worn.feet].tier;for(const l of[dLegR,dLegL])add(l,.3,.24,.32,t,0,-.64,.02)}}
+
+function buildDollArmor(){for(const m of dArmor){m.parent&&m.parent.remove(m);if(m.geometry)m.geometry.dispose()}for(const m of avArmor){m.parent&&m.parent.remove(m);if(m.geometry)m.geometry.dispose()}dArmor=[];dWings=[];avArmor=[];avWings=[];buildArmorOn(doll,dP,dm,dArmor,dWings);buildArmorOn(av,avP,avAM,avArmor,avWings)}
 buildDollArmor();drawArmor();
 function drawDoll(dt,L){const it=hot[sel];if(it!==dollKey){dollKey=it;if(dollItem){dArmR.remove(dollItem);dollItem.geometry.dispose()}
   if(typeof it==='string'){dollItem=new THREE.Mesh(spriteGeo(cellsOf(it)),spriteMat);dollItem.scale.setScalar(.7);dollItem.position.set(0,-.7,.32);dollItem.rotation.set(0,Math.PI/2,-.8)}
   else{dollItem=new THREE.Mesh(cubeGeo(it),handBlockMat);dollItem.scale.setScalar(.28);dollItem.position.set(0,-.78,.16)}dArmR.add(dollItem)}
  const sp=Math.hypot(P.vx,P.vz),k=Math.min(1,sp/4.4),air=!P.ground&&!P.fly;dPh+=sp*dt*2.3;const sw=Math.sin(dPh)*.85*k;
- for(const g of dWings){const sp=P.glide?1:0;g.rotation.z=g.userData.sd*(.18+sp*1.1);g.rotation.x=sp?-.2:.08}
+ for(const g of dWings.concat(avWings)){const sp=P.glide?1:0;g.rotation.z=g.userData.sd*(.18+sp*1.1);g.rotation.x=sp?-.2:.08}
  doll.rotation.set(sleep?-Math.PI/2:P.glide?1.15:P.fly?.35:0,-.5+Math.sin(performance.now()/2600)*.08,0);doll.position.set(0,sleep?.55:0,sleep?-.9:0);
  dLegR.rotation.x=sw;dLegL.rotation.x=-sw;if(riding){dLegR.rotation.x=dLegL.rotation.x=-1.45;dLegR.rotation.z=-.08;dLegL.rotation.z=.08}else{dLegR.rotation.z=dLegL.rotation.z=0}dArmL.rotation.x=sw*.8;dArmR.rotation.x=-sw*.8;dArmL.rotation.z=air?.35:.03;dArmR.rotation.z=air?-.35:-.03;
  if(swingT<1)dArmR.rotation.x=-Math.sin(swingT*Math.PI)*1.7-.3;else if(typeof hot[sel]==='string'&&!sw)dArmR.rotation.x=-.25;
