@@ -63,12 +63,12 @@ body.touch #dpad{display:grid}
 #dpad .d.on,#dpad .d:active{background:#ffffff55}
 #dU{grid-area:u}#dL{grid-area:l}#dR{grid-area:r}
 #dpad #bDn{grid-area:d;visibility:visible;opacity:.4;width:var(--dp);height:var(--dp);font-size:11px}
-body.flying #dpad #bDn{opacity:1;background:#f2b33a99}
+body.flying #dpad #bDn,body.gliding #dpad #bDn{opacity:1;background:#f2b33a99}
 body.touch #btns{right:calc(18px + env(safe-area-inset-right));bottom:calc(var(--jb) + var(--js) + 12px);grid-template-columns:repeat(3,var(--fb));grid-template-rows:repeat(3,var(--fb));grid-template-areas:". x ." "y . a" ". b .";gap:0}
 body.touch #btns .b{width:var(--fb);height:var(--fb);border-radius:50%;font-size:12px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a1a1acc}
 #btns .b::before{content:attr(data-k);font:400 17px/1 "Black Han Sans",sans-serif;margin-bottom:1px}
 body.touch #bFly{grid-area:x}body.touch #bBr{grid-area:y;background:#7a2a22cc}body.touch #bJ{grid-area:a;height:var(--fb);border-radius:50%}body.touch #bPl{grid-area:b;background:#24485ecc}
-body.touch.flying #bFly{background:#f2b33acc}
+body.touch.flying #bFly,body.touch.gliding #bFly{background:#f2b33acc}
 body.touch #top{display:none}
 body.touch #btns #bPet{position:absolute;display:none;left:calc(var(--fb)*-1.2);top:calc(var(--fb)*2.1);background:#a8406acc}
 body.touch.haspet #btns #bPet{display:flex}
@@ -937,10 +937,11 @@ addEventListener('pagehide',()=>save(true));
 /* ================= input ================= */
 const keys={};let jumpBtn=false,downBtn=false,brkHeld=false,plcHeld=false,lastBrk=0,lastPlc=0;
 let glideArm=false,boostCd=0;
-function startGlide(){if(P.glide||!hasWings())return;P.glide=true;P.fly=false;P.gs=Math.max(7,Math.hypot(P.vx,P.vz));glideArm=false;tone('triangle',300,600,.25,.05);tip('활공 중! 아래를 보면 빨라지고 위를 보면 느려져요 · 부스트로 가속',3200)}
-function boost(){if(boostCd>0)return;boostCd=1.1;P.gs=Math.min(32,(P.gs||8)+11);dirV.set(0,0,-1).applyEuler(aimO.rotation);burst(P.x-dirV.x*1.2,P.y+.8,P.z-dirV.z*1.2,[[255,220,120],[255,150,60],[220,220,220]],10,2);sfx('break');tone('sawtooth',200,700,.3,.06)}
-function glideStep(dt){const cp=Math.cos(P.pitch),dx=-Math.sin(P.yaw)*cp,dy=Math.sin(P.pitch),dz=-Math.cos(P.yaw)*cp;
- P.gs=Math.max(4,Math.min(32,P.gs+(-dy*17-.7)*dt));P.vx=dx*P.gs;P.vz=dz*P.gs;P.vy=dy*P.gs-2.3;
+function startGlide(){if(P.glide||!hasWings())return;P.glide=true;P.fly=false;P.gs=0;P.dropT=0;P.dnPrev=true;glideArm=false;tone('triangle',300,600,.25,.05);tip('활공 중! 이동 스틱으로 날아가요 · 내려 버튼을 누를 때마다 조금씩 내려가요 · X로 부스트',3600)}
+function boost(){if(boostCd>0)return;boostCd=1.1;P.gs=Math.min(16,(P.gs||0)+10);dirV.set(0,0,-1).applyEuler(aimO.rotation);burst(P.x-dirV.x*1.2,P.y+.8,P.z-dirV.z*1.2,[[255,220,120],[255,150,60],[220,220,220]],10,2);sfx('break');tone('sawtooth',200,700,.3,.06)}
+function glideStep(dt){const fwd=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-joy.y,str=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+joy.x;let mx=fwd,mz=str;const l=Math.hypot(mx,mz);if(l>1){mx/=l;mz/=l}
+ const sy=Math.sin(P.yaw),cy=Math.cos(P.yaw),sp=9;P.gs=Math.max(0,(P.gs||0)-dt*7);const wx=(-sy*mx+cy*mz)*sp-sy*P.gs,wz=(-cy*mx-sy*mz)*sp-cy*P.gs,acc=Math.min(1,dt*3);P.vx+=(wx-P.vx)*acc;P.vz+=(wz-P.vz)*acc;
+ const dn=downBtn||keys.ShiftLeft||keys.KeyC;if(dn&&!P.dnPrev)P.dropT=.35;P.dnPrev=dn;let ty=-1.1;if(P.dropT>0){P.dropT-=dt;ty=-5.5}P.vy+=(ty-P.vy)*Math.min(1,dt*8);
  move('x',P.vx*dt);move('z',P.vz*dt);P.ground=false;move('y',P.vy*dt);P.top=P.y;
  const inW=get(Math.floor(P.x),Math.floor(P.y+.4),Math.floor(P.z))===WATER;
  if(P.ground||inW){P.glide=false;P.vx*=.3;P.vz*=.3;tip(inW?'첨벙!':'착지!')}}
@@ -1228,6 +1229,7 @@ function updMob(e,dt){const D=MT[e.type];e.t+=dt;e.cd-=dt;e.hurtT-=dt;
  if(!D.hostile&&e.type!=='duck'){if(inW){let b=null,bd=1e9;for(const I of ISL){const q=Math.hypot(I.x-e.x,I.z-e.z)-I.r;if(q<bd){bd=q;b=I}}if(b){yawT=Math.atan2(b.x-e.x,b.z-e.z);want=D.speed}}
   else if(want>0){const ax=e.x+Math.sin(yawT)*1.2,az=e.z+Math.cos(yawT)*1.2,X=Math.floor(ax),Z=Math.floor(az),Y=Math.floor(e.y);if(get(X,Y,Z)===WATER||get(X,Y-1,Z)===WATER||get(X,Y-2,Z)===WATER||get(X,Y-1,Z)===LAVA){yawT=e.yaw+Math.PI*(.7+Math.random()*.6);e.wy=yawT;e.wt=1.5+Math.random()}}}
  if(e.caught&&!e.pet){yawT=Math.atan2(P.x-e.x,P.z-e.z);want=0}
+ if(D.critter&&!e.pet&&!e.caught&&dist<3.5&&!pDead){yawT=Math.atan2(dx,dz);want=0}
  if(e.pet){const r=petTick(e,dt);yawT=r.yaw;want=r.want;if(e.heartT>0){yawT=Math.atan2(P.x-e.x,P.z-e.z);want=0}}
  e.yaw=e.dash?yawT:angL(e.yaw,yawT,Math.min(1,dt*(e.pet?10:7)));
  if(D.hostile)want*=DIFF[diff].spd;
@@ -1237,7 +1239,7 @@ function updMob(e,dt){const D=MT[e.type];e.t+=dt;e.cd-=dt;e.hurtT-=dt;
   if(e.vx&&wb(Math.floor(e.x+e.vx*dt+Math.sign(e.vx)*(e.w+.05)),Math.floor(e.z)))e.vx=0;if(e.vz&&wb(Math.floor(e.x),Math.floor(e.z+e.vz*dt+Math.sign(e.vz)*(e.w+.05))))e.vz=0}}
  const wasG=e.ground,hx=eMove(e,'x',e.vx*dt),hz=eMove(e,'z',e.vz*dt);e.ground=false;eMove(e,'y',e.vy*dt);
  if((hx||hz)&&Math.abs(want)>.1){if(e.type==='spider')e.vy=Math.max(e.vy,3.5);else if(wasG)e.vy=7.6}
- const pdx=e.x-P.x,pdz=e.z-P.z,pd=Math.hypot(pdx,pdz),mind=e.w+.3;if(pd<mind&&Math.abs(e.y-P.y)<1.6&&pd>1e-3){const k=(mind-pd)*.5;eMove(e,'x',pdx/pd*k);eMove(e,'z',pdz/pd*k)}
+ const pdx=e.x-P.x,pdz=e.z-P.z,pd=Math.hypot(pdx,pdz),mind=e.w+.3;if(!D.critter&&pd<mind&&Math.abs(e.y-P.y)<1.6&&pd>1e-3){const k=(mind-pd)*.5;eMove(e,'x',pdx/pd*k);eMove(e,'z',pdz/pd*k)}
  // animate
  const sp=Math.hypot(e.vx,e.vz);e.ph+=sp*dt*5;const sw=Math.sin(e.ph)*Math.min(1,sp/1.2)*.7;
  if(e.type==='spider')e.legs.forEach((g,i)=>g.rotation.y=g.userData.b+Math.sin(e.ph*1.5+i)*.25*Math.min(1,sp));
@@ -1262,7 +1264,8 @@ function stepMobs(dt){if(petCd>0)petCd-=dt;stepHeartFx(dt);stepPetShots(dt);for(
 /* ================= loop ================= */
 let dayT=.1,last=performance.now(),orbit=0,wasWater=false;
 const cDay=new THREE.Color(0x8ecbff),cNight=new THREE.Color(0x0b1030),cDusk=new THREE.Color(0xf0905a),sky=new THREE.Color();
-function physics(dt){if(boostCd>0)boostCd-=dt;if(P.glide){glideStep(dt);return}if(glideArm&&!P.ground&&P.vy<0)startGlide();if(P.ground)glideArm=false;
+let camD=4.2;
+function physics(dt){if(boostCd>0)boostCd-=dt;if(document.body.classList.contains('gliding')!==!!P.glide)document.body.classList.toggle('gliding',!!P.glide);if(P.glide){glideStep(dt);return}if(glideArm&&!P.ground&&P.vy<0)startGlide();if(P.ground)glideArm=false;
  const fwd=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-joy.y,str=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+joy.x;
  const inW=get(Math.floor(P.x),Math.floor(P.y+.4),Math.floor(P.z))===WATER;
  if(inW&&!wasWater)sfx('swim');wasWater=inW;
@@ -1339,7 +1342,7 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
  if(paused){orbit+=dt*.05;camera.position.set(BW/2+Math.cos(orbit)*95,SEA+40,BD/2+Math.sin(orbit)*95);camera.lookAt(BW/2,SEA+2,BD/2)}
  else if(sleep){camera.position.set(sleep.x,sleep.y+.75,sleep.z);camera.rotation.set(1.25,sleep.yaw,0)}
  else{const sp0=Math.hypot(P.vx,P.vz),gb=P.ground&&!P.fly&&!riding?Math.min(1,sp0/4):0;camera.position.set(P.x,P.y+(riding?1.15:EYE)+Math.abs(Math.sin(bob))*.05*gb-.025*gb-landDip,P.z);camera.rotation.set(P.pitch,P.yaw,Math.sin(bob)*.006*gb);landDip=Math.max(0,landDip-dt*1.2);aimO.position.copy(camera.position);aimO.rotation.set(P.pitch,P.yaw,0);
-  if(view===1){const d=new THREE.Vector3(0,0,-1).applyEuler(aimO.rotation),e=camera.position.clone();const mD=petList().length?6.6:4.2;let dist=mD;for(let t=.3;t<=mD;t+=.1){const q=e.clone().addScaledVector(d,-t);q.y+=t*.08;if(solidAt(Math.floor(q.x),Math.floor(q.y),Math.floor(q.z))){dist=Math.max(.4,t-.35);break}}camera.position.addScaledVector(d,-dist);camera.position.y+=dist*.08;camera.rotation.set(P.pitch,P.yaw,0)}
+  if(view===1){const d=new THREE.Vector3(0,0,-1).applyEuler(aimO.rotation),e=camera.position.clone();const mD=petList().length?6.6:4.2;let dist=mD;for(let t=.3;t<=mD;t+=.1){const q=e.clone().addScaledVector(d,-t);q.y+=t*.08;if(solidAt(Math.floor(q.x),Math.floor(q.y),Math.floor(q.z))){dist=Math.max(.4,t-.35);break}}camD=dist<camD?dist:camD+(dist-camD)*.06;camera.position.addScaledVector(d,-camD);camera.position.y+=camD*.08;camera.rotation.set(P.pitch,P.yaw,0)}
   if(gb>.3&&!paused){stepAcc+=sp0*dt;if(stepAcc>1.7){stepAcc=0;const sid=get(Math.floor(P.x),Math.floor(P.y-.2),Math.floor(P.z));if(sid)sfx('step',sid)}}}
  {const fv=72+fovKick+(P.glide?6:0);if(Math.abs(camera.fov-fv)>.05){camera.fov+=(fv-camera.fov)*Math.min(1,dt*14);camera.updateProjectionMatrix()}fovKick=Math.max(0,fovKick-dt*22)}
  if(shake>0){camera.position.x+=(Math.random()-.5)*shake;camera.position.y+=(Math.random()-.5)*shake;shake=Math.max(0,shake-dt*1.4)}
