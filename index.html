@@ -129,6 +129,16 @@ body.touch #boatPad{bottom:var(--jb)}
 .rc[disabled]{opacity:.45;cursor:default}
 .rc:not([disabled]):hover{background:#dcdcdc}
 #inv .sec{grid-column:1/-1;font-weight:700;color:#333;font-size:13px;margin-top:4px}
+#invTabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:620px}#invTabs button{font:700 13px system-ui,sans-serif;padding:7px 12px;border-radius:16px;border:2px solid #1c1c1c;background:#6b6b6b;color:#fff;cursor:pointer;box-shadow:inset 0 2px 0 #ffffff40}#invTabs button.on{background:#f2b33a;color:#1c1c1c}
+#invBody{display:flex;gap:10px;align-items:stretch;justify-content:center;max-width:96vw}
+#inv .grid{width:auto!important;align-content:start}
+#invEquip{display:none;gap:8px;align-items:stretch}#invSide{padding:8px;background:#c6c6c6;border:3px solid #1c1c1c;border-radius:4px;box-shadow:inset 0 3px 0 #fff,inset 0 -3px 0 #555}#inv.eq #invEquip{display:flex}
+#invDoll{width:112px;min-height:170px;border:3px solid #f2b33a;border-radius:8px;background:radial-gradient(#ffffff30,#00000040)}
+#invSide{display:flex;flex-direction:column;gap:6px}#invSlots{display:grid;grid-template-columns:repeat(1,auto);gap:4px}.eqs{display:flex;align-items:center;gap:6px;font:700 12px system-ui,sans-serif;color:#222}.eqs .it{width:40px;height:40px;padding:3px}.eqs span{min-width:78px}
+#invPager{display:flex;gap:8px;align-items:center}#invPager .pg{font:700 15px system-ui,sans-serif;min-width:44px;height:36px;border-radius:8px;border:2px solid #1c1c1c;background:#8b8b8b;color:#fff;cursor:pointer}#invPager .pg:disabled{opacity:.35}#invPager .wide{min-width:auto;padding:0 10px;font-size:12px;background:#5a5a5a}#invPage{font-weight:700;min-width:56px;text-align:center;text-shadow:0 2px 0 #000}
+#inv .it{position:relative}#inv .it b.c{position:absolute;right:2px;bottom:0;font:700 12px/1 system-ui,sans-serif;color:#fff;text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000,0 -1px 0 #000}#inv .it i.t{position:absolute;left:2px;top:1px;font:700 9px/1 system-ui,sans-serif;font-style:normal;color:#ffe060;text-shadow:0 1px 0 #000}
+#inv .it.dim{opacity:.38;cursor:default}#inv .it.blank{visibility:hidden}
+@media (orientation:portrait){#invBody{flex-direction:column;align-items:center}}
 .mbtn.d0{background:linear-gradient(#6fb6e0,#3a7fb0)}.mbtn.d3{background:linear-gradient(#7fd06a,#3f9a3a)}.mbtn.d1{background:linear-gradient(#e2b84a,#b07f1c)}.mbtn.d2{background:linear-gradient(#d0503e,#8e2318)}
 #menu,#dead,#inv,#craft{z-index:10}#menu{overflow:auto;justify-content:safe center;background:linear-gradient(#0a1a30b0,#0a140acc)}
 @media (max-height:500px){.logo{font-size:44px}.sub{font-size:14px}.mbtn{min-height:42px;padding:6px 20px;font-size:15px}#menu{gap:8px;padding:12px}.help{font-size:12px;line-height:1.5}}
@@ -239,9 +249,11 @@ body.touch #boatPad{bottom:var(--jb)}
 </div>
 <div class="ovl" id="inv" hidden>
  <button class="xbtn" data-close="invClose" aria-label="닫기">✕</button>
- <h2>블록 가방</h2>
- <div class="grid" id="invGrid"></div>
- <div id="invName">고른 블록이 지금 칸에 들어가요</div>
+ <h2>가방</h2>
+ <div id="invTabs"></div>
+ <div id="invBody"><div id="invEquip"><div id="invDoll"></div><div id="invSide"><div id="invSlots"></div><div class="ainfo" id="invArm"></div></div></div><div class="grid" id="invGrid"></div></div>
+ <div id="invPager"><button class="pg" id="invPrev">◀</button><span id="invPage">1 / 1</span><button class="pg" id="invNext">▶</button><button class="pg wide" id="invClear">지금 칸 비우기</button></div>
+ <div id="invName">고른 물건이 지금 하단 칸에 들어가요</div>
  <button class="mbtn" id="invClose">닫기</button>
 </div>
 <script src="three.min.js"></script>
@@ -809,20 +821,41 @@ let tipT;function tip(s,ms){const el=$('tip');el.textContent=s;el.style.opacity=
 let nameT;
 function buildBar(){const bar=$('bar');bar.innerHTML='';hot.forEach((id,i)=>{const d=document.createElement('div'),fk=typeof id==='string'&&ITEM[id].kind==='food'?ITEM[id].food:null,cn=fk?food[fk]:id==='boat'?boatN:id==='torch'?torchN:id===BED?bedN:isBall(id)?(balls[id]||0):null;d.className='slot'+(i===sel?' on':'')+(cn===0?' empty':'');d.appendChild(itemIcon(id,48));if(cn!=null){const c=document.createElement('b');c.className='cnt';c.textContent=cn;d.appendChild(c)}d.addEventListener('pointerdown',e=>{e.stopPropagation();select(i)});bar.appendChild(d)})}
 function select(i){sel=(i+9)%9;[...$('bar').children].forEach((d,k)=>d.classList.toggle('on',k===sel));const n=$('name');n.textContent=itemName(hot[sel]);n.style.opacity=1;clearTimeout(nameT);nameT=setTimeout(()=>n.style.opacity=0,1400);saveDirty=true}
-function buildInv(){const g=$('invGrid');g.innerHTML='';const add=(it)=>{const d=document.createElement('div');d.className='it';d.title=itemName(it);d.appendChild(itemIcon(it,48));d.addEventListener('pointerenter',()=>$('invName').textContent=itemName(it));d.addEventListener('click',()=>{hot[sel]=it;buildBar();select(sel);closeInv()});g.appendChild(d)};
- {const h=document.createElement('div');h.className='sec';h.textContent='선택한 하단 칸 비우기';g.appendChild(h);add(null)}
- {const own=Object.keys(BALLS).filter(k=>balls[k]>0);if(own.length){const h=document.createElement('div');h.className='sec';h.textContent='포획볼 — 하단 칸에 넣고 B로 던져서 펫 잡기 ('+own.map(k=>BALLS[k].n+' '+balls[k]).join(' · ')+')';g.appendChild(h);for(const k of own)add(k)}}
- if(petBox.length){const h=document.createElement('div');h.className='sec';h.textContent='내 펫 — 골라서 하단 칸에 넣고 놓기로 소환 (1마리만)';g.appendChild(h);for(const b of petBox){regPetItem(b);add('pet_'+b.id)}}
- if(armorOwn.length){const h=document.createElement('div');h.className='sec';h.textContent='내 갑옷 (눌러서 입기/벗기)';g.appendChild(h);
-  const info=document.createElement('div');info.className='ainfo';info.textContent='방어력 '+armorPts()+' / 20 · 피해 '+Math.round(armorPts()*4)+'% 감소';g.appendChild(info);
-  for(const key of armorOwn){const it=ITEM[key],d=document.createElement('div');d.className='it'+(worn[it.slot]===key?' worn':'');d.title=it.n;d.appendChild(itemIcon(key,48));
-   d.addEventListener('pointerenter',()=>$('invName').textContent=it.n+(worn[it.slot]===key?' (입는 중)':''));
-   d.addEventListener('click',()=>{worn[it.slot]=worn[it.slot]===key?null:key;armorChanged();tip(worn[it.slot]===key?it.n+'을(를) 입었다':it.n+'을(를) 벗었다');buildInv()});g.appendChild(d)}}
- if(tools.length){const h=document.createElement('div');h.className='sec';h.textContent='내 도구';g.appendChild(h);tools.forEach(add)}
- if(tools.length||armorOwn.length){const h2=document.createElement('div');h2.className='sec';h2.textContent='블록';g.appendChild(h2)}
- for(let id=1;id<B.length;id++){if(id===TABLE&&!tableOn||id===FURNACE&&!furnaceOn||id===BED&&bedN<=0||id===25)continue;const d=document.createElement('div');d.className='it';d.title=B[id].n;d.appendChild(icon(id,48));
- d.addEventListener('pointerenter',()=>$('invName').textContent=B[id].n);
- d.addEventListener('click',()=>{hot[sel]=id;buildBar();select(sel);closeInv()});g.appendChild(d)}}
+let dex=new Set(),invTab='mat',invPage=0;
+const INV_TABS=[['dex','📖 도감'],['mat','🧱 재료'],['equip','⚔️ 무기·방어구'],['craft','🛠️ 제작템'],['cook','🍖 요리']];
+const SLOTN={head:'머리',chest:'몸',legs:'다리',feet:'발',back:'등(날개)'};
+function invItems(tab){const L=[],toHot=it=>()=>{hot[sel]=it;buildBar();select(sel);closeInv()};
+ if(tab==='dex'){for(const b of petBox){regPetItem(b);const act=petList().some(e=>e.pid===b.id);L.push({ic:itemIcon('pet_'+b.id,48),n:`${CRIT[b.t]} Lv.${b.lv}`+(act?' (소환 중)':'')+' — 눌러서 하단 칸에 넣기',tag:act?'소환':'',cnt:'Lv'+b.lv,on:act,click:toHot('pet_'+b.id)})}
+  for(const t of Object.keys(CRIT)){const got=dex.has(t),cl=typeCells(t).map(([x,y,c])=>[x,y,got?c:[60,60,66]]),el=MT[t]&&MT[t].el;L.push({ic:cellCanvas(cl,48),n:got?`📖 ${CRIT[t]}`+(el?` · ${ELN[el]} 속성`:'')+(MT[t].stage===2?' · 진화형':''):'📖 ??? — 아직 못 만난 펫',dim:!got,tag:'도감'})}}
+ else if(tab==='mat'){for(let id=1;id<B.length;id++){if(id===TABLE||id===FURNACE||id===BED||id===25)continue;L.push({ic:icon(id,48),n:B[id].n+' — 눌러서 하단 칸에 넣기',click:toHot(id)})}
+  for(const k in FOOD)if(!k.startsWith('c_')&&food[k]>0)L.push({ic:itemIcon('f_'+k,48),n:`${FOOD[k].n} ${food[k]}개 — 요리하면 더 많이 회복`,cnt:food[k],click:toHot('f_'+k)});
+  for(const k in MAT)if(mats[k]>0)L.push({ic:MAT[k].ic(),n:`${MAT[k].n} ${mats[k]}개 (제작 재료)`,cnt:mats[k]})}
+ else if(tab==='equip'){for(const k of tools)L.push({ic:itemIcon(k,48),n:ITEM[k].n+' — 눌러서 하단 칸에 넣기',click:toHot(k)});
+  for(const key of armorOwn){const it=ITEM[key],on=worn[it.slot]===key;L.push({ic:itemIcon(key,48),n:it.n+(on?' (입는 중 — 누르면 벗기)':' — 누르면 입기'),on,tag:on?'착용':'',click:()=>{worn[it.slot]=on?null:key;armorChanged();tip(on?it.n+'을(를) 벗었다':it.n+'을(를) 입었다');buildInv()}})}}
+ else if(tab==='craft'){if(tableOn)L.push({ic:icon(TABLE,48),n:'제작대 — 놓으면 도구·갑옷 제작',click:toHot(TABLE)});if(furnaceOn)L.push({ic:icon(FURNACE,48),n:'화로 — 놓으면 요리',click:toHot(FURNACE)});
+  if(bedN>0)L.push({ic:icon(BED,48),n:`침대 ${bedN}개`,cnt:bedN,click:toHot(BED)});if(boatN>0)L.push({ic:itemIcon('boat',48),n:`나무 배 ${boatN}개`,cnt:boatN,click:toHot('boat')});if(torchN>0)L.push({ic:itemIcon('torch',48),n:`횃불 ${torchN}개`,cnt:torchN,click:toHot('torch')});
+  for(const k in BALLS)if(balls[k]>0)L.push({ic:itemIcon(k,48),n:`${BALLS[k].n} ${balls[k]}개 — B로 던져서 펫 잡기`,cnt:balls[k],click:toHot(k)})}
+ else if(tab==='cook'){for(const k in FOOD)if(k.startsWith('c_')&&food[k]>0)L.push({ic:itemIcon('f_'+k,48),n:`${FOOD[k].n} ${food[k]}개 · 하트 ${FOOD[k].heal/2}칸 회복`,cnt:food[k],click:toHot('f_'+k)})}
+ return L}
+function buildInv(){const box=$('inv'),g=$('invGrid'),tabs=$('invTabs');box.classList.toggle('eq',invTab==='equip');
+ tabs.innerHTML='';for(const[k,n]of INV_TABS){const b=document.createElement('button');b.textContent=n;b.className=k===invTab?'on':'';b.onclick=()=>{invTab=k;invPage=0;buildInv()};tabs.appendChild(b)}
+ const eq=invTab==='equip',avail=Math.min(600,innerWidth-40)-(eq&&innerWidth>innerHeight?250:0),cols=Math.max(4,Math.min(8,Math.floor((avail-24)/58))),rows=Math.max(2,Math.min(4,Math.floor((innerHeight-(eq&&innerWidth<=innerHeight?430:250))/62))),per=cols*rows;
+ const L=invItems(invTab),pages=Math.max(1,Math.ceil(L.length/per));invPage=Math.max(0,Math.min(invPage,pages-1));
+ g.style.gridTemplateColumns=`repeat(${cols},52px)`;g.innerHTML='';
+ const pg=L.slice(invPage*per,invPage*per+per);
+ for(const e of pg){const d=document.createElement('div');d.className='it'+(e.on?' worn':'')+(e.dim?' dim':'');d.appendChild(e.ic);
+  if(e.cnt!=null&&e.cnt!==''){const c=document.createElement('b');c.className='c';c.textContent=e.cnt;d.appendChild(c)}if(e.tag&&!e.dim){const t=document.createElement('i');t.className='t';t.textContent=e.tag;d.appendChild(t)}
+  d.title=e.n;d.addEventListener('pointerenter',()=>$('invName').textContent=e.n);d.addEventListener('click',()=>{$('invName').textContent=e.n;if(e.click)e.click()});g.appendChild(d)}
+ for(let k=pg.length;k<per;k++){const d=document.createElement('div');d.className='it blank';g.appendChild(d)}
+ if(!L.length)$('invName').textContent={dex:'아직 펫이 없어요 — 포획볼로 꼬마 친구를 잡아 보세요',cook:'요리가 없어요 — 화로에서 고기·생선을 구워요',craft:'제작템이 없어요 — 제작에서 만들어요',equip:'무기·방어구가 없어요 — 제작대에서 만들어요',mat:''}[invTab]||'';
+ $('invPage').textContent=`${invPage+1} / ${pages}`;$('invPrev').disabled=invPage<=0;$('invNext').disabled=invPage>=pages-1;
+ if(eq){const sl=$('invSlots');sl.innerHTML='';for(const k in SLOTN){const r=document.createElement('div');r.className='eqs';const d=document.createElement('div');d.className='it'+(worn[k]?' worn':'');d.appendChild(itemIcon(worn[k]||null,40));
+   if(worn[k])d.onclick=()=>{const it=ITEM[worn[k]];worn[k]=null;armorChanged();tip(it.n+'을(를) 벗었다');buildInv()};const sp=document.createElement('span');sp.textContent=SLOTN[k]+': '+(worn[k]?ITEM[worn[k]].n:'없음');r.append(d,sp);sl.appendChild(r)}
+  $('invArm').textContent='방어력 '+armorPts()+' / 20 · 피해 '+Math.round(armorPts()*4)+'% 감소'}}
+{const sw={x:null};const g=$('invGrid');g.addEventListener('pointerdown',e=>{sw.x=e.clientX});g.addEventListener('pointerup',e=>{if(sw.x==null)return;const dx=e.clientX-sw.x;sw.x=null;if(Math.abs(dx)>50){invPage+=dx<0?1:-1;buildInv()}});
+ $('invPrev').onclick=()=>{invPage--;buildInv()};$('invNext').onclick=()=>{invPage++;buildInv()};$('invClear').onclick=()=>{hot[sel]=null;buildBar();select(sel);$('invName').textContent=`${sel+1}번 칸을 비웠어요`}}
+function renderDollIn(el){const r=el.getBoundingClientRect();if(r.width<10||r.height<10)return;const w=Math.round(r.width),h=Math.round(r.height),x=Math.round(r.left),y=Math.round(r.top);dollCam.aspect=w/h;dollCam.updateProjectionMatrix();
+ renderer.setScissorTest(true);renderer.setScissor(x,innerHeight-y-h,w,h);renderer.setViewport(x,innerHeight-y-h,w,h);renderer.clearDepth();renderer.render(dollScene,dollCam);renderer.setScissorTest(false);renderer.setViewport(0,0,innerWidth,innerHeight)}
 let paused=true,invOpen=false;
 function openInv(){buildInv();invOpen=true;$('inv').hidden=false;if(document.pointerLockElement)document.exitPointerLock()}
 function closeInv(){invOpen=false;$('inv').hidden=true}
@@ -890,7 +923,7 @@ function startAudio(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioC
 function play(){startAudio();$('menu').hidden=true;paused=false;if(!isTouch())lockPointer();tip(isTouch()?'왼쪽 조이스틱으로 걷고, 오른쪽 화면을 끌어 둘러봐요':'클릭하면 마우스로 둘러볼 수 있어요 · Esc로 메뉴')}
 $('mCont').onclick=()=>{play()};
 {const mb=$('mMus'),lab=()=>{mb.textContent='음악: '+(musicOn?'켜짐':'꺼짐');mb.classList.toggle('green',musicOn)};lab();mb.onclick=e=>{e.stopPropagation();startAudio();musicOn=!musicOn;try{localStorage.setItem('bw_music',musicOn?'1':'0')}catch(_){}lab()}}
-$('mNew').onclick=()=>{seed=(Math.random()*1e9)|0;edits={};for(const b of boats.slice())removeBoat(b);riding=null;boatN=0;for(const k in mats)mats[k]=0;tools=[];tableOn=false;furnaceOn=false;fuelPts=0;bedOn=false;bedN=0;armorOwn=[];for(const k in worn)worn[k]=null;drawArmor();buildDollArmor();for(const k in food)food[k]=0;for(const d of drops)scene.remove(d.g);drops.length=0;hot=[null,null,null,null,null,null,null,null,null];sel=0;buildBar();generate();spawn();rebuildAll();document.body.classList.remove('haspet');petBox=[];petNext=1;balls.ball_n=5;balls.ball_s=0;balls.ball_g=0;hot[0]='ball_n';buildBar();resetMobs();save(true);play();tip('새로운 섬에 도착했다!')};
+$('mNew').onclick=()=>{seed=(Math.random()*1e9)|0;edits={};for(const b of boats.slice())removeBoat(b);riding=null;boatN=0;for(const k in mats)mats[k]=0;tools=[];tableOn=false;furnaceOn=false;fuelPts=0;bedOn=false;bedN=0;armorOwn=[];for(const k in worn)worn[k]=null;drawArmor();buildDollArmor();for(const k in food)food[k]=0;for(const d of drops)scene.remove(d.g);drops.length=0;hot=[null,null,null,null,null,null,null,null,null];sel=0;buildBar();generate();spawn();rebuildAll();document.body.classList.remove('haspet');petBox=[];petNext=1;dex=new Set();balls.ball_n=5;balls.ball_s=0;balls.ball_g=0;hot[0]='ball_n';buildBar();resetMobs();save(true);play();tip('새로운 섬에 도착했다!')};
 /* ================= save ================= */
 const KEY='blockworld-save-v1';
 const SLOTK=i=>'blockworld-slot-'+i;
@@ -929,7 +962,7 @@ $('codeCopy').onclick=async()=>{const code=btoa(unescape(encodeURIComponent(JSON
 $('codeLoad').onclick=()=>{const v=$('codeBox').value.trim();if(!v){tip('먼저 아래 칸에 백업 코드를 붙여넣어 주세요');return}
  let data=null;try{data=JSON.parse(decodeURIComponent(escape(atob(v.replace(/\s+/g,'')))))}catch(e){try{data=JSON.parse(v)}catch(e2){}}
  if(!data){tip('코드가 올바르지 않아요');return}armBtn($('codeLoad'),'code','지금 세계 대신?',()=>{if(loadData(data)){$('codeBox').value='';closeSlots();play();tip('백업 코드로 불러왔어요')}})};
-function snap(){return{v:1,ver:3,boatN,torchN,boats:boats.map(b=>[+b.x.toFixed(2),+b.y.toFixed(2),+b.z.toFixed(2),+b.yaw.toFixed(2)]),seed,edits,p:[P.x,P.y,P.z,P.yaw,P.pitch,P.fly?1:0],hot,sel,day:dayT,home,diff,food,armorOwn,worn,mats,tools,tableOn,bedOn,bedN,hp,furnaceOn,fuelPts,pbox:(petList().forEach(syncPet),petBox.map(b=>({id:b.id,t:b.t,lv:b.lv,xp:b.xp}))),balls,pnext:petNext,pact:petList()[0]?petList()[0].pid:null}}
+function snap(){return{v:1,ver:3,boatN,torchN,boats:boats.map(b=>[+b.x.toFixed(2),+b.y.toFixed(2),+b.z.toFixed(2),+b.yaw.toFixed(2)]),seed,edits,p:[P.x,P.y,P.z,P.yaw,P.pitch,P.fly?1:0],hot,sel,day:dayT,home,diff,food,armorOwn,worn,mats,tools,tableOn,bedOn,bedN,hp,furnaceOn,fuelPts,pbox:(petList().forEach(syncPet),petBox.map(b=>({id:b.id,t:b.t,lv:b.lv,xp:b.xp}))),balls,dex:[...dex],pnext:petNext,pact:petList()[0]?petList()[0].pid:null}}
 function save(force){if(!force&&!saveDirty)return;saveDirty=false;try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}}
 function applySave(s){if(!s||typeof s.seed!=='number')return false;const oldV=s.ver!==3;if(oldV)s=Object.assign({},s,{edits:{},p:null,home:null,boats:[]});
  for(const b of boats.slice())removeBoat(b);riding=null;boatN=+s.boatN||0;torchN=+s.torchN||0;
@@ -939,7 +972,7 @@ seed=s.seed;edits=s.edits||{};generate();
  if(Array.isArray(s.p)){[P.x,P.y,P.z,P.yaw,P.pitch]=s.p;P.fly=!!s.p[5];document.body.classList.toggle('flying',P.fly)}else spawn();
  petBox=[];petNext=1;if(Array.isArray(s.pbox)){for(const o of s.pbox)if(o&&CRIT[o.t]&&o.id)petBox.push({id:+o.id,t:o.t,lv:+o.lv||1,xp:+o.xp||0});petNext=Math.max(+s.pnext||1,...petBox.map(b=>b.id+1),1)}
  else if(Array.isArray(s.pets)){for(const o of s.pets.map(petObj))if(o&&CRIT[o.t])petBox.push({id:petNext++,t:o.t,lv:o.lv,xp:o.xp})}
- for(const b of petBox)regPetItem(b);if(s.balls&&typeof s.balls==='object'){for(const k in balls)balls[k]=+s.balls[k]||0}else{balls.ball_n=5;balls.ball_s=0;balls.ball_g=0;setTimeout(()=>tip('포획볼 5개를 받았어요 — 가방에서 하단 칸에 넣고 B로 던져 펫을 잡아요',5000),2500)}const pAct=Array.isArray(s.pbox)?s.pact:(petBox[0]&&petBox[0].id);
+ for(const b of petBox)regPetItem(b);dex=new Set((Array.isArray(s.dex)?s.dex:[]).filter(t=>CRIT[t]));for(const b of petBox)dex.add(b.t);if(s.balls&&typeof s.balls==='object'){for(const k in balls)balls[k]=+s.balls[k]||0}else{balls.ball_n=5;balls.ball_s=0;balls.ball_g=0;setTimeout(()=>tip('포획볼 5개를 받았어요 — 가방에서 하단 칸에 넣고 B로 던져 펫을 잡아요',5000),2500)}const pAct=Array.isArray(s.pbox)?s.pact:(petBox[0]&&petBox[0].id);
  if(Array.isArray(s.hot)&&s.hot.length===9&&s.hot.every(v=>v==null||(typeof v==='number'?B[v]:ITEM[v])))hot=s.hot;if(s.mats)for(const k in mats)mats[k]=+s.mats[k]||0;if(Array.isArray(s.tools))tools=s.tools.filter(k=>ITEM[k]);tableOn=!!s.tableOn;furnaceOn=!!s.furnaceOn;fuelPts=+s.fuelPts||0;bedOn=!!s.bedOn;bedN=typeof s.bedN==='number'?s.bedN:(bedOn&&Array.isArray(s.hot)&&s.hot.includes(BED)?1:0);if(s.food)for(const k in food)food[k]=+s.food[k]||0;if(Array.isArray(s.armorOwn))armorOwn=s.armorOwn.filter(k=>ITEM[k]&&ITEM[k].kind==='armor');if(s.worn)for(const k in worn)worn[k]=s.worn[k]&&ITEM[s.worn[k]]?s.worn[k]:null;if(worn.chest==='elytra'){worn.chest=null;worn.back='elytra'}diff=typeof s.diff==='number'?Math.max(0,Math.min(3,s.diff)):s.mon===false?0:1;monsters=diff>0;sel=s.sel||0;if(typeof s.day==='number')dayT=s.day;if(Array.isArray(s.home))home=s.home;if(s.mon===false)monsters=false;if(typeof s.hp==='number')hp=Math.max(1,Math.min(20,s.hp));if(diff>0){P.fly=false;document.body.classList.remove('flying')}P.glide=false;if(Array.isArray(s.boats))for(const q of s.boats)addBoat(q[0],q[1],q[2],q[3]);if(oldV)setTimeout(()=>tip('섬들이 넓어져서 새 지형으로 시작해요 — 가방·도구·갑옷은 그대로예요',5000),800);{const b=pAct!=null&&boxOf(pAct);document.body.classList.toggle('haspet',!!b);setTimeout(()=>{if(b&&!petList().length)spawnPetFromBox(b);updPetCls();buildBar()},0)}return true}
 function load(){try{return applySave(JSON.parse(localStorage.getItem(KEY)||'null'))}catch(e){return false}}
 setInterval(()=>{if(!paused)saveDirty=true;save()},4000);
@@ -1145,12 +1178,13 @@ function regPetItem(b){const a=petList().some(e=>e.pid===b.id);ITEM['pet_'+b.id]
 function syncPet(e){const b=e&&boxOf(e.pid);if(b){b.t=e.type;b.lv=e.lv||1;b.xp=e.xp||0;regPetItem(b)}}
 function updPetCls(){document.body.classList.toggle('haspet',petList().length>0)}
 const PACC={p_cap:'#ff8fba',p_acorn:'#5e3c22',p_drop:'#a8e6ff',p_sprout:'#5aa83a',e_fire:'#ffd34a',e_fire2:'#ff6a2a',e_water:'#a8e2ff',e_water2:'#e8f8ff',e_leaf:'#ff7eb0',e_leaf2:'#ff8cbc',e_volt:'#ffe040',e_volt2:'#ffe040',e_cloud:'#ffffff',e_cloud2:'#ffffff',e_rock:'#7a7264',e_rock2:'#7ad8ff',e_ice:'#9ee8ff',e_ice2:'#ffffff',e_bug:'#fff27a',e_bug2:'#fff27a'};
-function petCells(pid){const b=boxOf(pid),t=b?b.t:'p_cap',c=FACECFG[t]||FACECFG.p_cap,rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)],bg=rgb(c[0]),ey=rgb(c[1]),ac=rgb(PACC[t]||'#ffffff'),dk=bg.map(v=>v*.72),m=[];
+function petCells(pid){const b=boxOf(pid);return typeCells(b?b.t:'p_cap')}
+function typeCells(t){const c=FACECFG[t]||FACECFG.p_cap,rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)],bg=rgb(c[0]),ey=rgb(c[1]),ac=rgb(PACC[t]||'#ffffff'),dk=bg.map(v=>v*.72),m=[];
   for(let y=5;y<15;y++)for(let x=2;x<14;x++)m.push([x,y,(x===2||x===13||y===14)?dk:bg]);
   const wide=t==='p_cap';for(let y=1;y<5;y++)for(let x=wide?1:4;x<(wide?15:12);x++)if(!(y===1&&(x<(wide?4:6)||x>(wide?11:9))))m.push([x,y,ac]);
   if(t[0]==='e'&&MT[t]&&MT[t].stage===2){m.push([3,0,ac],[12,0,ac])}
   for(const ex of[4,10]){m.push([ex,8,ey],[ex+1,8,ey],[ex,9,ey],[ex+1,9,ey],[ex,8,[255,255,255]])}m.push([3,11,[255,157,180]],[12,11,[255,157,180]],[7,11,ey],[8,11,ey]);return m}
-function capturePet(e){const id=petNext++,b={id,t:e.type,lv:1,xp:0};petBox.push(b);regPetItem(b);const nm=CRIT[e.type];burst(e.x,e.y+.5,e.z,[[255,255,255],[255,190,210]],16,2.4);tone('sine',900,1600,.12,.06);removeMob(e);
+function capturePet(e){const id=petNext++,b={id,t:e.type,lv:1,xp:0};petBox.push(b);dex.add(e.type);regPetItem(b);const nm=CRIT[e.type];burst(e.x,e.y+.5,e.z,[[255,255,255],[255,190,210]],16,2.4);tone('sine',900,1600,.12,.06);removeMob(e);
   giveHot('pet_'+id);buildBar();tip(`🎒 ${ga(nm)} 가방에 들어왔어요! 하단 칸에서 골라 놓기를 누르면 소환돼요 (1마리만 소환)`,4600);saveDirty=true}
 function recallPet(e,silent){syncPet(e);const nm=CRIT[e.type];burst(e.x,e.y+.4,e.z,[[255,255,255],[200,230,255]],14,2.2);removeMob(e);updPetCls();const b=boxOf(e.pid);if(b)regPetItem(b);buildBar();if(!silent){tone('sine',1200,600,.15,.05);tip(`${ga(nm)} 가방으로 돌아왔어요`,1800)}saveDirty=true}
 function spawnPetFromBox(b,x,z){let e=x!=null?addMob(b.t,x,z,true):null;if(!e)e=addPet(b.t,b.lv,b.xp);else{e.lv=b.lv;e.xp=b.xp;makePet(e)}if(e){e.pid=b.id;regPetItem(b)}return e}
@@ -1178,7 +1212,7 @@ function petGain(e,n){if(!e||!e.pet||!mobs.includes(e)||e.lv>=LV_MAX)return;e.xp
 function evolvePet(e){if(!mobs.includes(e)||!e.pet||!EVO[e.type])return;const nt=EVO[e.type],old=CRIT[e.type],x=e.x,y=e.y,z=e.z,yaw=e.yaw,lv=e.lv,xp=e.xp,idx=mobs.indexOf(e);
   for(let k=0;k<6;k++)setTimeout(()=>burst(x,y+.7,z,[[255,255,255],[255,240,150],[180,220,255]],16,3),k*130);
   [[523,0],[659,.1],[784,.2],[1047,.3],[1319,.45],[1568,.6],[2093,.8]].forEach(([f,d])=>{tone('triangle',f,f,.26,.06,d);tone('sine',f*2,f*2,.2,.02,d)});
-  const pid=e.pid;removeMob(e);let n=addMob(nt,x,z,true);if(n){n.x=x;n.y=y;n.z=z;n.lv=lv;n.xp=xp;makePet(n)}else n=addPet(nt,lv,xp);if(!n)return;n.yaw=yaw;n.pid=pid;syncPet(n);buildBar();
+  const pid=e.pid;removeMob(e);let n=addMob(nt,x,z,true);if(n){n.x=x;n.y=y;n.z=z;n.lv=lv;n.xp=xp;makePet(n)}else n=addPet(nt,lv,xp);if(!n)return;n.yaw=yaw;n.pid=pid;syncPet(n);dex.add(nt);buildBar();
   const j=mobs.indexOf(n);if(j>=0&&idx>=0){mobs.splice(j,1);mobs.splice(Math.min(idx,mobs.length),0,n)}n.evoT=1.3;setHeartEyes(n,true);n.heartT=1.2;n.heartE=0;
   tip(`✨ ${ga(old)} ${ro(CRIT[nt])} 진화했어요! 더 강한 공격을 쓸 수 있어요`,4200);saveDirty=true}
 const petShots=[],petBolts=[];
@@ -1446,7 +1480,8 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
   if(!sleep&&!riding&&view===0){renderer.clearDepth();renderer.render(handScene,handCam)}
   renderDoll()}
  {const ph=$('petHud'),v=!paused&&!pDead?'':'none';if(ph.style.display!==v)ph.style.display=v}
- if(custOpen){drawDoll(dt,1);renderDollBig()}}
+ if(custOpen){drawDoll(dt,1);renderDollBig()}
+ if(invOpen&&invTab==='equip'&&!custOpen){drawDoll(dt,1);renderDollIn($('invDoll'))}}
 let flLabel='날기',plLabel='놓기',heldKey=null,equipT=1,bob=0,itemMesh=null;
 /* ---- paper doll (top-left character) ---- */
 const dollScene=new THREE.Scene(),dollCam=new THREE.PerspectiveCamera(30,.7,.1,20);dollCam.position.set(0,1.0,5.2);dollCam.lookAt(0,.98,0);
