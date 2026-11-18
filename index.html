@@ -899,7 +899,20 @@ function schedBar(){const night=typeof nightNow!=='undefined'&&nightNow,bpm=nigh
  for(const n of tri)note(MF(n-12),t,beat*4.2,.035,'triangle',false);note(MF(r-24),t,beat*4,.05,'sine',false);
  const pent=night?[0,3,5,7,10]:[0,2,4,7,9];for(let i=0;i<8;i++){if(Math.random()<(night?.55:.35))continue;const n=r+12+pent[Math.random()*5|0]+(Math.random()<.3?12:0);note(MF(n),t+i*beat/2,beat*1.6,night?.03:.04,'sine',true)}
  nextBar+=beat*4;barN++}
-setInterval(()=>{if(!AC||AC.state!=='running')return;OUT();MUSG.gain.setTargetAtTime(musicOn?(paused?.55:.75):0,AC.currentTime,.4);if(!musicOn)return;if(nextBar<AC.currentTime)nextBar=AC.currentTime+.1;while(nextBar<AC.currentTime+.6)schedBar()},200);
+let musBoss=false,MNB=null;
+function mNoise(){if(!MNB){MNB=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const d=MNB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}return MNB}
+function kick(t,v){const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(38,t+.16);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.28);o.connect(g);g.connect(MUSG);o.start(t);o.stop(t+.3)}
+function snare(t,v){const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=mNoise();f.type='bandpass';f.frequency.value=1800;f.Q.value=.8;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.14);s.connect(f);f.connect(g);g.connect(MUSG);s.start(t);s.stop(t+.16);note(190,t,.09,v*.5,'triangle',false)}
+function schedBoss(){const b=60/140,t=nextBar,prog=[45,46,45,43],r=prog[barN%4];
+ for(let i=0;i<8;i++)note(MF(r-12+(i===7?12:0)),t+i*b/2,b*.42,.06,'sawtooth',false);
+ for(let i=0;i<4;i++)kick(t+i*b,i%2?.16:.22);if(barN%2)kick(t+3.5*b,.12);
+ for(const i of[1,3])snare(t+i*b,.07);
+ const os=[0,3,7,8,7,3,1,3];for(let i=0;i<8;i++)note(MF(r+12+os[(i+barN*2)%8]),t+i*b/2,b*.38,.02,'square',true);
+ note(MF(r+24),t,b*4,.016,'triangle',true);note(MF(r+25),t+b*2,b*2,.012,'triangle',false);
+ if(barN%2===0)for(const n of[r,r+3,r+7])note(MF(n),t,b*1.4,.035,'sawtooth',true);
+ if(barN%4===3)for(let i=0;i<4;i++)note(MF(r+19-i),t+b*2+i*b/2,b*.45,.03,'square',true);
+ nextBar+=b*4;barN++}
+setInterval(()=>{if(!AC||AC.state!=='running')return;OUT();const boss=!pDead&&mobs.some(e=>MT[e.type].boss&&Math.hypot(e.x-P.x,e.z-P.z)<48);if(boss!==musBoss){musBoss=boss;barN=0;nextBar=AC.currentTime+.08}MUSG.gain.setTargetAtTime(musicOn?(paused?.55:boss?.9:.75):0,AC.currentTime,.4);if(!musicOn)return;if(nextBar<AC.currentTime)nextBar=AC.currentTime+.1;while(nextBar<AC.currentTime+.6)(boss?schedBoss:schedBar)()},200);
 /* ================= UI ================= */
 let tipT;function tip(s,ms){const el=$('tip');el.textContent=s;el.style.opacity=1;clearTimeout(tipT);tipT=setTimeout(()=>el.style.opacity=0,ms||2600)}
 let nameT;
@@ -1684,8 +1697,7 @@ function skyPortalTick(dt){if(!VOID||!dragonDown){if(skyP)skyP.visible=false;ret
 const ACH={dragon:{t:'공허의 정복자',d:'공허룡을 쓰러뜨렸다',ic:'🐉'},abyss:{t:'심연을 벤 자',d:'심연 군주 벨카르를 쓰러뜨렸다',ic:'😈'},magma:{t:'용암의 지배자',d:'마그마 군주 이그나르를 쓰러뜨렸다',ic:'🔥'},legend:{t:'전설의 영웅',d:'세 보스를 모두 쓰러뜨렸다',ic:'👑'}};
 let avTitle=null;
 function titleChanged(){const tt=$('ttag');if(!tt)return;const A=ptitle&&ACH[ptitle];tt.hidden=!A;if(A){tt.textContent=A.ic+' '+A.t;tt.classList.toggle('lg',ptitle==='legend')}
- if(typeof av!=='undefined'){if(avTitle){av.remove(avTitle);avTitle.material.map.dispose();avTitle.material.dispose();avTitle=null}if(A){const c=document.createElement('canvas');c.width=320;c.height=64;const x=c.getContext('2d');const lg=ptitle==='legend';x.fillStyle=lg?'#5a3a00cc':'#2a1a4acc';x.beginPath();x.roundRect?x.roundRect(4,8,312,48,22):x.rect(4,8,312,48);x.fill();x.lineWidth=4;x.strokeStyle=lg?'#ffd04a':'#b070ff';x.stroke();x.font='bold 28px sans-serif';x.textAlign='center';x.fillStyle=lg?'#ffe066':'#ffe9a8';x.fillText('「'+A.t+'」',160,43);
-  avTitle=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false}));avTitle.scale.set(2,.4,1);avTitle.position.y=2.35;av.add(avTitle)}}}
+}
 function unlockAch(k){if(!ACH[k]||achs.includes(k))return;achs.push(k);ptitle=k;let extra=null;if(k!=='legend'&&['dragon','abyss','magma'].every(q=>achs.includes(q))){extra='legend'}titleChanged();saveDirty=true;
  const A=ACH[k],b=$('achBan');b.hidden=true;void b.offsetWidth;b.innerHTML=`🏆 업적 달성!<b>${A.ic} 「${A.t}」</b><small>${A.d} — 칭호를 달았어요</small>`;b.hidden=false;clearTimeout(b._t);b._t=setTimeout(()=>b.hidden=true,4500);
  [[784,0],[988,.1],[1175,.2],[1568,.34],[1319,.5],[1568,.62]].forEach(([f,d])=>{tone('square',f,f,.14,.05,d);tone('sine',f*2,f*2,.12,.02,d)});fxSparks(P.x,P.y+1.6,P.z,[0xffd04a,0xffffff,0xb070ff],40,4,.4,1.2,4,STAR_TX);save(true);
@@ -1807,9 +1819,9 @@ function stepWeather(dt,L){const cp=camera.position;
  // 하늘·안개·빛
  if(w>0){sky.lerp(cGray.clone().multiplyScalar(.35+.65*L),w*.6);scene.fog.color.copy(sky);scene.fog.near=50-34*w;scene.fog.far=130-70*w;amb.intensity*=1-.3*w;dl.intensity*=1-.6*w;clouds.material.opacity=Math.min(1,clouds.material.opacity+.4*w)}else{scene.fog.near=50;scene.fog.far=130}
  // 빗소리
- if(AC&&AC.state==='running'){if(!WX.rainSrc){if(!NB){NB=AC.createBuffer(1,AC.sampleRate*1.5,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
-   const src=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();src.buffer=NB;src.loop=true;f.type='bandpass';f.frequency.value=1400;f.Q.value=.6;g.gain.value=0;src.connect(f);f.connect(g);g.connect(OUT());src.start();WX.rainSrc=src;WX.rainG=g}
-  const under=wTop(P.x,P.z,P.y+12)>P.y+2.5,vol=snow?w*.05:w*(under?.1:.22);WX.rainG.gain.setTargetAtTime(paused?vol*.4:vol,AC.currentTime,.3)}
+ if(AC&&AC.state==='running'){if(!WX.rainSrc){const RB=AC.createBuffer(1,AC.sampleRate*3,AC.sampleRate),d=RB.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=(l+.03*(Math.random()*2-1))/1.03;d[i]=l*4}const fd=AC.sampleRate*.05|0;for(let i=0;i<fd;i++){const k=i/fd;d[i]*=k;d[d.length-1-i]*=k}
+    const src=AC.createBufferSource(),hp=AC.createBiquadFilter(),f=AC.createBiquadFilter(),g=AC.createGain();src.buffer=RB;src.loop=true;hp.type='highpass';hp.frequency.value=180;hp.Q.value=.5;f.type='lowpass';f.frequency.value=900;f.Q.value=.4;g.gain.value=0;src.connect(hp);hp.connect(f);f.connect(g);g.connect(OUT());src.start();WX.rainSrc=src;WX.rainG=g}
+  const under=wTop(P.x,P.z,P.y+12)>P.y+2.5,vol=snow?w*.03:w*(under?.05:.11);WX.rainG.gain.setTargetAtTime(paused?vol*.4:vol,AC.currentTime,.3);if(!snow&&!paused&&!under&&Math.random()<w*dt*5)tone('sine',1400+Math.random()*900,700+Math.random()*300,.05,.006)}
  // 천둥
  if(!snow&&w>.8&&WX.target===1&&!paused){WX.thunder-=dt;if(WX.thunder<=0){WX.thunder=14+Math.random()*26;const fl=$('flash');fl.style.transition='none';fl.style.opacity=.45;requestAnimationFrame(()=>{fl.style.transition='opacity .5s';fl.style.opacity=0});
   if(AC){const d=.4+Math.random()*1.2;tone('sine',60,30,2.2,.35,d);setTimeout(()=>{try{nz(1.8,.35,'lowpass',380,.7)}catch(e){}},d*1000)}}}}
