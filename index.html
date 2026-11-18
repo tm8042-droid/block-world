@@ -47,6 +47,7 @@ body.flying #bDn{visibility:visible}
 body.flying #bFly{background:#f2b33a99}
 #top{position:fixed;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));display:flex;gap:8px}
 .tb{min-width:46px;height:46px;border-radius:10px;border:2px solid #ffffff60;background:#00000070;color:#fff;font:700 14px "Noto Sans KR",sans-serif;padding:0 12px;cursor:pointer}
+body.gp :is(#btns .b,#dpad .d,.sh .s,#bMinus,#bPlus,#joy,#joyR,.jc){opacity:.35;transition:opacity .12s} body.gp :is(#btns .b,#dpad .d,.sh .s,#bMinus,#bPlus).on{opacity:1}
 /* ===== 조이콘 배치 (터치) ===== */
 body.touch{--jb:calc(132px + env(safe-area-inset-bottom));--dp:42px;--js:128px;--fb:50px}
 .jc{position:fixed;pointer-events:none;border-radius:34px;display:none}
@@ -1227,6 +1228,20 @@ document.querySelectorAll('[data-b]').forEach(b=>{const k=b.dataset.b;
   if(k==='jump'){jumpBtn=true;if(diff>0&&hasWings()&&!P.ground&&!P.glide&&!riding)startGlide()}else if(k==='down')downBtn=true;else if(k==='fly')toggleFly();else if(k==='brk'){brkHeld=true;pressPrimary()}else if(k==='plc'){plcHeld=true;placeB();lastPlc=performance.now()}});
  const off=()=>{b.classList.remove('on');if(k.startsWith('b_'))BK[k.slice(2)]=0;if(k==='jump')jumpBtn=false;if(k==='down')downBtn=false;if(k==='brk'){brkHeld=false;releasePrimary()}if(k==='plc')plcHeld=false};
  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,off))});
+/* --- 실제 컨트롤러(게임패드) — 화면 가상 패드 버튼을 그대로 눌러 줘요 --- */
+{const GPM={0:'bFly',1:'bPl',2:'bBr',3:'bJ',4:'bDn',5:'bPet',6:'bZL',7:'bZR',8:'bMinus',9:'bPlus',12:'dU',13:'dD',14:'dL',15:'dR'};
+ const prev={};let gpOn=false,useJ=false,useR=false,gl=performance.now();
+ const fire=(id,t)=>{const el=$(id);if(!el)return;try{el.dispatchEvent(new PointerEvent(t,{bubbles:true,cancelable:true,pointerId:9001,pointerType:'touch',isPrimary:false}))}catch(_){}};
+ const closeTop=()=>{const xs=[...document.querySelectorAll('.xbtn')].filter(x=>x.getClientRects().length&&getComputedStyle(x.closest('.ovl')||x).display!=='none');if(!xs.length)return false;xs[xs.length-1].click();return true};
+ const release=()=>{for(const k in prev)if(prev[k]){prev[k]=false;fire(GPM[k],'pointerup')}if(useJ){joy.x=joy.y=0;useJ=false;setKnob()}if(useR){useR=false;$('knobR').style.transform=''}};
+ const setOn=on=>{if(on===gpOn)return;gpOn=on;document.body.classList.toggle('gp',on);if(on)tip('🎮 컨트롤러 연결됨 — 버튼을 누르면 화면 패드도 같이 반응해요',2600);else{release();tip('🎮 컨트롤러 연결이 끊겼어요',1800)}};
+ addEventListener('gamepaddisconnected',()=>{const gs=navigator.getGamepads?[...navigator.getGamepads()]:[];if(!gs.some(q=>q&&q.connected))setOn(false)});
+ (function gpPoll(n){requestAnimationFrame(gpPoll);const dt=Math.min(.05,(n-gl)/1000)||0;gl=n;let g=null;try{const gs=navigator.getGamepads?navigator.getGamepads():[];for(const q of gs)if(q&&q.connected){g=q;break}}catch(_){}
+  if(!g){if(gpOn)setOn(false);return}setOn(true);const menu=paused||invOpen||craftOpen;
+  for(const k in GPM){const b=g.buttons[k],v=!!(b&&(b.pressed||b.value>.5));if(v===!!prev[k])continue;prev[k]=v;if(v&&k==='3'&&closeTop())continue;fire(GPM[k],v?'pointerdown':'pointerup')}
+  const dz=v=>Math.abs(v||0)<.15?0:Math.max(-1,Math.min(1,v)),lx=dz(g.axes[0]),ly=dz(g.axes[1]),rx=dz(g.axes[2]),ry=dz(g.axes[3]);
+  if(joy.id===null){if(lx||ly){joy.x=lx;joy.y=ly;useJ=true;setKnob()}else if(useJ){joy.x=joy.y=0;useJ=false;setKnob()}}
+  if(rs.id===null){if((rx||ry)&&!menu){useR=true;$('knobR').style.transform=`translate(${rx*36}px,${ry*36}px)`;P.yaw-=rx*Math.abs(rx)*3.2*dt;P.pitch-=ry*Math.abs(ry)*2.2*dt;P.pitch=Math.max(-1.55,Math.min(1.55,P.pitch))}else if(useR){useR=false;$('knobR').style.transform=''}}})(gl)}
 
 /* ================= mobs ================= */
 let diff=1;const DIFF=[{n:'평화로움',dmg:0,max:0,spawn:9,regen:1,spd:1,d:'몬스터가 나오지 않고 체력이 빨리 차요'},{n:'약간 어려움',dmg:.6,max:5,spawn:3.5,regen:4,spd:1,d:'몬스터가 조금 나오고 약하게 때려요'},{n:'어려움',dmg:1.5,max:12,spawn:1.4,regen:7,spd:1.18,d:'몬스터가 많고 세고 빨라요!'},{n:'쉬움',dmg:.3,max:3,spawn:5.5,regen:2.5,spd:.85,d:'몬스터가 가끔 나오고 아주 약하게 때려요'}];
