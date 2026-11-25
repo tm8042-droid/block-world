@@ -66,7 +66,7 @@ body.touch #dpad{display:grid}
 #dpad #dD{grid-area:d}#dpad #dL{grid-area:l}#dpad #dR{grid-area:r}#dpad #dU{grid-area:u}
 .sh{position:fixed;display:none;flex-direction:column;gap:6px;z-index:1}body.touch .sh{display:flex}#shL{left:calc(14px + env(safe-area-inset-left));bottom:calc(var(--jb) + var(--js) + var(--dp)*3 + 22px)}#shR{right:calc(14px + env(safe-area-inset-right));bottom:calc(var(--jb) + var(--js) + var(--fb)*3 + 22px);align-items:flex-end}
 .sh .s{width:84px;height:32px;border-radius:16px;border:2px solid #ffffff80;background:#1a1a1acc;color:#fff;font:700 12px/1 "Noto Sans KR",sans-serif;padding:0 10px;display:flex;align-items:center;gap:5px;white-space:nowrap;touch-action:none;-webkit-user-select:none;user-select:none;position:relative}.sh .s b{font:400 14px/1 "Black Han Sans",sans-serif;opacity:.85}.sh .s::after{content:"";position:absolute;inset:-6px;border-radius:20px}.sh .s.on,.sh .s:active{transform:scale(.93);filter:brightness(1.35)}
-#shL #bDn{opacity:.5;visibility:visible}body.flying #shL #bDn,body.gliding #shL #bDn{opacity:1;background:#f2b33acc}body.swimming #shL #bDn{opacity:1;background:#3a8ee8cc}#shR #bPet{display:none}body.haspet #shR #bPet{display:flex}
+#shL #bDn{opacity:.5;visibility:visible}body.flying #shL #bDn,body.gliding #shL #bDn{opacity:1;background:#f2b33acc}body.swimming #shL #bDn{opacity:1;background:#3a8ee8cc}#shR #bPet{display:none}#bPet.auto{background:#2fae5acc!important;box-shadow:0 0 10px #6f6;opacity:.85!important}body.haspet #shR #bPet{display:flex}
 body.flying #dpad #bDn,body.gliding #dpad #bDn{opacity:1;background:#f2b33a99}body.swimming #dpad #bDn{opacity:1;background:#3a8ee899}
 body.touch #btns{right:calc(18px + env(safe-area-inset-right));bottom:calc(var(--jb) + var(--js) + 12px);grid-template-columns:repeat(3,var(--fb));grid-template-rows:repeat(3,var(--fb));grid-template-areas:". b ." "y . a" ". x .";gap:0}
 body.touch #btns .b{width:var(--fb);height:var(--fb);border-radius:50%;font-size:12px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a1a1acc}
@@ -375,7 +375,7 @@ body.touch :is(#btns,#dpad,#shL,#shR,#joy,#joyR,#bPet){opacity:.45}
 <div id="petHud"></div>
 <div id="top"><button class="tb" id="bMap">지도</button><button class="tb" id="bCraft">제작</button><button class="tb" id="bInv">가방</button><button class="tb" id="bMenu" aria-label="메뉴">≡</button></div>
 <div class="ovl" id="menu">
- <div class="logoW wow"><div class="wowT"><div class="wowS"><span>월드</span><i>◆</i><span>오브</span></div><h1 class="logo">블록크래프트</h1><div class="logoEn">WORLD OF BLOCKCRAFT</div><div class="wowV">v86</div></div></div>
+ <div class="logoW wow"><div class="wowT"><div class="wowS"><span>월드</span><i>◆</i><span>오브</span></div><h1 class="logo">블록크래프트</h1><div class="logoEn">WORLD OF BLOCKCRAFT</div><div class="wowV">v87</div></div></div>
  <p class="sub">상상하는 대로 짓고, 부수고, 탐험하자!</p>
  <button class="mbtn green" id="mCont" hidden>계속하기</button>
  <button class="mbtn" id="mNew">새 세계 만들기</button>
@@ -660,7 +660,9 @@ var FOREST_K=.66;function column(x,z){let best=-9,bi=0;for(let i=0;i<ISL.length;
  else if(best<BEACH)h=SEA+1+(best/BEACH)*1.3+(fbm((x-OFF)*.09,(z-OFF)*.09,3)-.5)*.5;
  else{const k=Math.min(1,(best-BEACH)*2.3),n=fbm((x-OFF)*.03,(z-OFF)*.03,1),rg=1-Math.abs(vn((x-OFF)*.024,(z-OFF)*.024,9+bi)*2-1),mt=Math.pow(Math.max(0,vn((x-OFF)*.013,(z-OFF)*.013,19+bi)-.4)/.6,1.5)*T.mtn;
   h=SEA+2.3+Math.pow(k,.85)*(1.5+T.amp*n)+rg*rg*T.ridge*k+mt*Math.min(1,k*1.5)}
- if(I.t==='snow'&&h>SEA+8)h-=3*Math.min(1,(h-SEA-8)/12);
+ if(I.t==='snow'&&best>0){if(best<BEACH)return{h:SEA+1,t:I.t,m:best,beach:true};const kf=Math.min(1,(best-BEACH)/.08),pk=Math.pow(Math.max(0,(best-.5)/.5),1.1)*20,np=Math.pow(Math.max(0,vn((x-OFF)*.035,(z-OFF)*.035,47+bi)-.55)/.45,1.6)*13*Math.min(1,Math.max(0,(best-.3)/.2)),rg=(1-Math.abs(vn((x-OFF)*.05,(z-OFF)*.05,48+bi)*2-1))*(pk+np)*.18;
+  h=SEA+1+kf*(1+(vn((x-OFF)*.06,(z-OFF)*.06,49+bi)>.7?1:0))+pk+np+rg;return{h:Math.max(4,Math.min(BH-8,Math.floor(h))),t:I.t,m:best,beach:false}}
+ if(I.t==='volcano'&&best>0)return{h:SEA+1,t:I.t,m:best,beach:true};
  if(I.t==='forest'&&best>0){if(best<BEACH*1.8)return{h:SEA,t:I.t,m:best,beach:true};const k2=Math.min(1,(best-BEACH*1.8)/.12);h=SEA+1+k2*Math.max(0,h-SEA-1)*FOREST_K}
  return{h:Math.max(4,Math.min(I.t==='snow'?BH-10:BH-7,Math.floor(h))),t:I.t,m:best,beach:best>0&&best<BEACH+.05}}
 function oreAt(x,y,z,rich){x-=OFF;z-=OFF;const k=rich?2.2:1,c=o=>h3(x>>1,(y>>1)+o*97,z>>1),r=h3(x,y*31,z+5);
@@ -673,11 +675,11 @@ function tree(x,y,z){const th=4+(h3(x-OFF,z-OFF,3)*3|0),top=y+th;if(top+2>=BH)re
   const X=x+dx,Y=top+dy,Z=z+dz;if(X>=0&&Z>=0&&X<BW&&Z<BD&&get(X,Y,Z)===0)world[I(X,Y,Z)]=6}}}
 function generate(){world.fill(0);makeIslands();const hm=new Int16Array(BW*BD),tm=[];
  for(let z=0;z<BD;z++)for(let x=0;x<BW;x++){const C=column(x,z),h=C.h,t=C.t,land=h>SEA,beach=C.beach&&h<=SEA+3,mine=t==='mine';hm[x+z*BW]=h;tm[x+z*BW]=t;
-  const top=!land?4:t==='desert'||beach?4:(t==='snow'&&h>SEA+12)||h>SEA+24?13:mine&&h>SEA+5?3:1,sub=!land||t==='desert'||beach?4:mine&&h>SEA+5?3:2;
+  const top=!land?4:t==='desert'||beach?4:t==='snow'?(h>SEA+26&&h3(x-OFF,z-OFF,58)<.3?3:h>SEA+5||vn((x-OFF)*.09,(z-OFF)*.09,57)>.36?13:1):h>SEA+24?13:mine&&h>SEA+5?3:1,sub=!land||t==='desert'||beach?4:mine&&h>SEA+5?3:2;
   const caveTop=h>SEA+3?h-1:h-4,thr=mine?.07:.05;
   for(let y=0;y<=Math.max(h,SEA);y++){let id=0;
    if(y===0||(y<3&&h3(x-OFF,y,z-OFF)<(y===1?.55:.2)))id=25;
-   else if(y<h-3)id=oreAt(x,y,z,mine);else if(y<h)id=sub;else if(y===h)id=top;else if(y<=SEA)id=WATER;
+   else if(y<h-3)id=oreAt(x,y,z,mine);else if(y<h)id=t==='snow'&&h>SEA+5?(y>SEA+10||h3(x-OFF,y,z-OFF)<.3?13:3):sub;else if(y===h)id=top;else if(y<=SEA)id=WATER;
    if(id&&id!==WATER&&id!==25&&y>3&&y<caveTop){const a=vn3((x-OFF)*.055,y*.085,(z-OFF)*.055,11),b=vn3((x-OFF)*.055,y*.085,(z-OFF)*.055,23);
     if(Math.abs(a-.5)<thr&&Math.abs(b-.5)<thr*1.5||mine&&y<SEA&&vn3((x-OFF)*.035,y*.06,(z-OFF)*.035,41)>.74)id=0}
    if(id&&id!==25&&id!==WATER&&y>=4&&y<=12){const hq=vn((x-OFF)*.03,(z-OFF)*.03,77);if(hq>.52){const ct=5+Math.min(7,(hq-.52)*30|0);if(y>=5&&y<=ct)id=0;else if(y===4&&vn((x-OFF)*.11,(z-OFF)*.11,78)>.8)id=LAVA}}
@@ -755,13 +757,15 @@ function buildCreative(V,hm){const FY=SEA+3,R=V.r-3,E=R+14;
 function buildVoid(){const V=VOID;if(!V)return;const T=SEA+3;
  for(let z=V.z-V.r-6;z<=V.z+V.r+6;z++)for(let x=V.x-V.r-6;x<=V.x+V.r+6;x++){if(x<1||z<1||x>=BW-1||z>=BD-1)continue;const d=Math.hypot(x-V.x,z-V.z)/(V.r*(1+(fbm((x-OFF)*.08,(z-OFF)*.08,71)-.5)*.3));if(d>1)continue;const bot=Math.round(T-2-(1-d*d)*13);for(let y=Math.max(1,bot);y<=T;y++)world[I(x,y,z)]=VSTONE;for(let y=T+1;y<BH;y++)world[I(x,y,z)]=0}
  for(let k=0;k<7;k++){const a=k/7*6.283+.3,px=Math.round(V.x+Math.cos(a)*V.r*.7),pz=Math.round(V.z+Math.sin(a)*V.r*.7),h=6+(h3(k,4,71)*6|0);for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)for(let y=T+1;y<=T+h;y++)world[I(px+dx,y,pz+dz)]=BASALT;world[I(px,T+h+1,pz)]=TORCH}}
-function buildVolcano(V,hm){const S=(x,y,z,id)=>{if(x>=0&&z>=0&&x<BW&&z<BD&&y>0&&y<BH)world[I(x,y,z)]=id};const R=V.r*.86,PK=Math.min(BH-8,SEA+25);
+function buildVolcano(V,hm){const S=(x,y,z,id)=>{if(x>=0&&z>=0&&x<BW&&z<BD&&y>0&&y<BH)world[I(x,y,z)]=id};const R=V.r*.86,PK=Math.min(BH-8,SEA+25),RC=V.rc=R*.56,PL=SEA+3;
  const flows=[0,1,2].map(i=>h3(i,77,5)*6.283);
  for(let x=Math.floor(V.x-R-1);x<=V.x+R+1;x++)for(let z=Math.floor(V.z-R-1);z<=V.z+R+1;z++){if(x<0||z<0||x>=BW||z>=BD)continue;const d=Math.hypot(x+.5-V.x,z+.5-V.z);if(d>R)continue;
-  let H=SEA+1+Math.floor(Math.pow(1-d/R,1.25)*(PK-SEA-1)+(h3(x-OFF,z-OFF,8)-.5)*1.6);const crater=d<4.2;if(crater)H=PK-4;H=Math.max(H,hm[x+z*BW]);
-  for(let y=SEA-8;y<=H;y++)S(x,y,z,crater&&y===H?LAVA:h3(x-OFF+y,z-OFF,3)<.12?3:BASALT);for(let y=H+1;y<BH-1;y++)S(x,y,z,0);
-  if(!crater){const a=Math.atan2(z+.5-V.z,x+.5-V.x);for(const f of flows){let da=Math.abs(((a-f+9.42)%6.283)-3.14);if(da*d<.9&&d<R*.75)S(x,H,z,LAVA)}}
-  hm[x+z*BW]=H}}
+  const edge=R-d+(vn((x-OFF)*.12,(z-OFF)*.12,81)-.5)*2.4,sand=edge<3.2;
+  let H=d<RC?PL+Math.floor(Math.pow(1-d/RC,1.1)*(PK-PL)+(h3(x-OFF,z-OFF,8)-.5)*1.6):sand?SEA+1:edge<4.4?SEA+2:PL+(vn((x-OFF)*.07,(z-OFF)*.07,82)>.74?1:0);const crater=d<4.2;if(crater)H=PK-4;if(sand)H=Math.max(H,SEA+1);
+  for(let y=SEA-8;y<=H;y++)S(x,y,z,crater&&y===H?LAVA:sand&&y>H-3?4:h3(x-OFF+y,z-OFF,3)<.12?3:BASALT);for(let y=H+1;y<BH-1;y++)S(x,y,z,0);
+  if(!crater){const a=Math.atan2(z+.5-V.z,x+.5-V.x);for(const f of flows){let da=Math.abs(((a-f+9.42)%6.283)-3.14),wob=(vn((x-OFF)*.2,(z-OFF)*.2,84+f)-.5)*.9;if(da*d+(d>RC?wob:0)<(d>RC?1.05:.9))S(x,H,z,LAVA)}if(!sand&&d>RC+2&&edge>5&&vn((x-OFF)*.15,(z-OFF)*.15,83)>.86)S(x,H,z,LAVA)}
+  hm[x+z*BW]=H}
+ for(const f of flows)for(let d=R-1;d<R+12;d+=.5)for(const w of[-.7,0,.7]){const x=Math.floor(V.x+Math.cos(f)*d-Math.sin(f)*w),z=Math.floor(V.z+Math.sin(f)*d+Math.cos(f)*w);if(x<0||z<0||x>=BW||z>=BD)continue;const h=hm[x+z*BW];if(h<=SEA)continue;if(world[I(x,h,z)]===4)S(x,h,z,LAVA)}}
 
 function buildVillage(V,hm){const S=(x,y,z,id)=>{if(x>=0&&z>=0&&x<BW&&z<BD&&y>0&&y<BH)world[I(x,y,z)]=id};
  const cx=Math.round(V.x),cz=Math.round(V.z),H=(x,z)=>hm[x+z*BW];
@@ -983,7 +987,7 @@ const crack=new THREE.Mesh(new THREE.BoxGeometry(1.006,1.006,1.006),new THREE.Me
 function gain(k,n){mats[k]+=n;saveDirty=true;const el=$('name');el.textContent=`+${n} ${MAT[k].n}`;el.style.opacity=1;clearTimeout(nameT);nameT=setTimeout(()=>el.style.opacity=0,1100)}
 function finishBreak(h,id,t){setB(h.x,h.y,h.z,0);if(isHerb(id)){const n=Math.random()<.25?2:1,hk=HERBK[id];gain(hk,n);fxSparks(h.x+.5,h.y+.4,h.z+.5,[0x60d060,0xc080ff,0xffffff],10,1.2,.25,.6,-1);tone('triangle',880,1320,.12,.04);tip(`🌿 ${MAT[hk].n}를 캤어요! (+${n}) — 가방 › 재료 · 연금술사에게 가져가면 물약을 만들어 줘요`,2200);saveDirty=true;return}if(id===TORCH){torchN++;giveHot('torch');sfx('place');return}
  if(isDoor(id)){const oy=(id===37||id===39)?h.y+1:h.y-1;if(isDoor(get(h.x,oy,h.z)))setB(h.x,oy,h.z,0);doorN++;giveHot(DOOR);sfx('place');tip(`문을 주웠어요 (${doorN}개)`);saveDirty=true;return}
- if(id===PORTAL){portalN++;giveHot(PORTAL);sfx('place');tip(`차원문을 주웠어요 (${portalN}개)`);saveDirty=true;return}
+ if(id===PORTAL||id===BASALT&&ppOf(h.x,h.y,h.z)){const S=ppOf(h.x,h.y,h.z);if(S){ppCells(S).forEach(([x,y,z,b])=>{if(get(x,y,z)===b)setB(x,y,z,0)});Q.pp.splice(Q.pp.indexOf(S),1)}portalN++;giveHot(PORTAL);sfx('place');tip(`차원문을 접어서 주웠어요 (${portalN}개)`);saveDirty=true;return}
  if(id===TABLE){tableN++;tableOn=true;giveHot(TABLE);sfx('place');tip(`제작대를 주웠어요 (${tableN}개)`);saveDirty=true;return}
  if(id===FURNACE){furnaceN++;furnaceOn=true;giveHot(FURNACE);sfx('place');tip(`화로를 주웠어요 (${furnaceN}개)`);saveDirty=true;return}
  if(id===BED){bedN++;bedOn=true;giveHot(BED);sfx('place');tip(`침대를 주웠어요 (침대 ${bedN}개)`);saveDirty=true;return}
@@ -1006,7 +1010,7 @@ function doAttack(e){if(e.isBoat){lastAtk=performance.now();swingT=0;hitBoat(e);
  const base=t?(t.kind==='sword'?TIER[t.tier].s:TIER[t.tier].p):1;let d=base*(.2+ch*ch*.8)*(setOn('habyss')?1.3:1);
  const inW=get(Math.floor(P.x),Math.floor(P.y+.4),Math.floor(P.z))===WATER,crit=ch>.9&&!P.ground&&P.vy<0&&!P.fly&&!inW;
  if(crit){d*=1.5;burst(e.x,e.y+e.h*.7,e.z,[[255,255,255],[255,240,170]],12,3.5);tone('square',900,1400,.08,.06)}
- const kb=.35+ch*.75;hurtMob(e,d,{x:dirV.x,z:dirV.z},kb);if(setOn('habyss')&&MT[e.type].hostile&&performance.now()>lsCd&&hp<hpMax&&!pDead){lsCd=performance.now()+700;hp=Math.min(hpMax,hp+1);drawHearts();fxSparks(P.x,P.y+1.2,P.z,[0xff3050,0xffb0c0],6,1.2,.25,.6,-1,STAR_TX)}punchSfx(crit);hitStop=crit?.11:.06*(.5+ch*.5);shake=Math.max(shake,crit?.16:.07*(.4+ch));fovKick=crit?5:2.5*ch;burst(e.x,e.y+e.h*.6,e.z,[[255,255,255],[255,235,200]],crit?6:4,2.2);
+ const kb=.35+ch*.75;petAssist(e);hurtMob(e,d,{x:dirV.x,z:dirV.z},kb);if(setOn('habyss')&&MT[e.type].hostile&&performance.now()>lsCd&&hp<hpMax&&!pDead){lsCd=performance.now()+700;hp=Math.min(hpMax,hp+1);drawHearts();fxSparks(P.x,P.y+1.2,P.z,[0xff3050,0xffb0c0],6,1.2,.25,.6,-1,STAR_TX)}punchSfx(crit);hitStop=crit?.11:.06*(.5+ch*.5);shake=Math.max(shake,crit?.16:.07*(.4+ch));fovKick=crit?5:2.5*ch;burst(e.x,e.y+e.h*.6,e.z,[[255,255,255],[255,235,200]],crit?6:4,2.2);
  if(t&&t.kind==='sword'&&ch>.9&&P.ground&&!crit){let sw=false;for(const o of mobs.slice())if(o!==e&&Math.hypot(o.x-e.x,o.z-e.z)<1.7&&Math.hypot(o.x-P.x,o.z-P.z)<3.4){hurtMob(o,1,{x:o.x-P.x,z:o.z-P.z},.5);sw=true}
   const fx=P.x+dirV.x*1.3,fz=P.z+dirV.z*1.3;burst(fx,P.y+1.2,fz,[[235,235,235],[200,200,200]],sw?14:8,2.4);tone('triangle',500,200,.12,.05)}
  if(t&&t.epic==='venom'){if(Math.random()<.1)venomHit(e)}else if(t&&t.epic&&ch>.4)epicHit(e,t);
@@ -1036,7 +1040,7 @@ function placeB(){if(ferryRide||grab)return;{const hf=heldFood();if(hf&&!boatAt(
  if(y<1||y>=BH||x<0||z<0||x>=BW||z>=BD)return;const c=get(x,y,z);if(c&&c!==WATER)return;const id=hot[sel];
  if(id!==WATER&&x+1>P.x-PW&&x<P.x+PW&&z+1>P.z-PW&&z<P.z+PW&&y+1>P.y&&y<P.y+PH)return;
  if(id===DOOR){if(doorN<=0){tip('문이 없어요 — 판자 6개로 만들어요');return}if(get(x,y+1,z)||y+1>=BH){tip('문은 2칸 높이가 필요해요');return}doorN--;buildBar()}
- if(id===PORTAL){if(portalN<=0){tip('차원문이 없어요 — 그림자 눈 10개로 만들어요');return}portalN--;buildBar();tip('그림자 차원문을 세웠어요 — 안으로 걸어 들어가면 이동해요',3200)}
+ if(id===PORTAL){if(portalN<=0){tip('차원문이 없어요 — 그림자 눈 10개로 만들어요');return}openPPortal(x,y,z);return}
  if(id===BED){if(bedN<=0){tip('침대가 없어요 — 제작대에서 양털 3개와 판자 3개로 만들어요');return}bedN--;buildBar();if(bedN>0)tip(`침대를 놓았어요 (남은 침대 ${bedN}개)`);else tip('침대를 놓았어요 — 곡괭이나 손으로 부수면 다시 주울 수 있어요',3200)}
  if(id===TABLE){if(tableN<=0){tip('제작대가 없어요 — 판자 4개로 만들어요');dropHot0();return}tableN--;tip(tableN?`제작대를 놓았어요 (남은 ${tableN}개)`:'제작대를 놓았어요 — 부수면 다시 가방으로 돌아와요',2600)}
  if(id===FURNACE){if(furnaceN<=0){tip('화로가 없어요 — 제작대에서 조약돌 8개로 만들어요');dropHot0();return}furnaceN--;tip(furnaceN?`화로를 놓았어요 (남은 ${furnaceN}개)`:'화로를 놓았어요 — 부수면 다시 가방으로 돌아와요',2600)}
@@ -1958,17 +1962,26 @@ function fireEl(e,yaw,ev){const D=MT[e.type];
   else if(D.el==='ice'){const n=ev?4:2;for(let k=0;k<n;k++)petShot(e,yaw+(k-(n-1)/2)*.15,'ice');tone('sine',1800,2600,.15,.04)}
   else if(D.el==='bug'){const n=ev?5:3;for(let k=0;k<n;k++)petShot(e,yaw+(k-(n-1)/2)*.14,'bug')}}
 function meleeHit(e,a){const C=ELC[a.el]||ELC.cute,fx=Math.sin(a.yaw),fz=Math.cos(a.yaw),cx=e.x+fx*.6,cz=e.z+fz*.6,R=a.st==='slam'?2.3:a.st==='spin'?1.9:1.4,m=a.st==='slam'?1.25:a.st==='headbutt'?1.15:1;
-  for(const q of mobs.slice())if(isFoe(q,e)&&Math.hypot(q.x-cx,q.z-cz)<R+q.w&&Math.abs(q.y-e.y)<2.2)petHit(e,q,petDmg(e)*m,{x:q.x-e.x||fx,z:q.z-e.z||fz},a.st==='headbutt'?1.7:1.2);
+  for(const q of mobs.slice())if(isFoe(q,e)&&!(petRush(e)&&mobAir(q))&&Math.hypot(q.x-cx,q.z-cz)<R+q.w&&Math.abs(q.y-e.y)<2.2)petHit(e,q,petDmg(e)*m,{x:q.x-e.x||fx,z:q.z-e.z||fz},a.st==='headbutt'?1.7:1.2);
   if(a.st==='slam'){fxRing(e.x,e.y+.05,e.z,C[0],3,.5);fxRing(e.x,e.y+.05,e.z,0xffffff,2,.35);fxSparks(e.x,e.y+.1,e.z,[0xd8c8a0,C[0]],16,3,.3,.6,10);shake=Math.max(shake,.05);tone('square',150,55,.22,.07)}
   else if(a.st==='spin'){fxRing(e.x,e.y+.35,e.z,C[1],2.1,.4);fxSparks(e.x,e.y+.4,e.z,C,14,3.4,.26,.5,2,STAR_TX);tone('triangle',900,400,.2,.05)}
   else{fxFlash(cx,e.y+.5,cz,0xffffff,1,.15);fxSparks(cx,e.y+.6,cz,[0xfff060,0xffffff],10,2.6,.3,.55,4,STAR_TX);tone('square',600,900,.06,.05);tone('sine',300,180,.12,.05,.05)}
   if(a.ev&&(a.el==='water'||a.el==='air')){fxRing(e.x,e.y+.1,e.z,C[0],3.4,.55);if(a.el==='water')fxSparks(e.x,e.y+.3,e.z,C,26,4,.3,.9,14);else{const gp=new THREE.Group();for(let k=0;k<18;k++){const g=fxGlow(k%2?C[0]:C[1],.45);g.position.set(Math.cos(k)*1.2,k*.12,Math.sin(k)*1.2);gp.add(g)}gp.position.set(e.x,e.y,e.z);fxAdd(gp,.8,(o,k,dt)=>{o.rotation.y+=dt*14;o.scale.setScalar(1+k*1.6);o.children.forEach(c=>c.material.opacity=1-k)})}
    for(const q of mobs.slice())if(isFoe(q,e)&&Math.hypot(q.x-e.x,q.z-e.z)<3.4&&Math.abs(q.y-e.y)<2.5)petHit(e,q,petDmg(e)*.6,{x:q.x-e.x,z:q.z-e.z},1)}}
-function petAttack(force){if(!force&&inVil(P.x,P.z)){tip('🏘️ 주민 마을에서는 펫 공격을 할 수 없어요',2000);return}const ps=folPets();if(!ps.length){tip('소환된 펫이 없어요 — 섬의 꼬마 친구에게 포획볼을 던져 잡아 보세요',3000);return}if(petCd>0&&!force)return;petCd=1.2;
+function petAttack(force){if(!force){const ps=folPets();if(!ps.length){tip('소환된 펫이 없어요 — 섬의 꼬마 친구에게 포획볼을 던져 잡아 보세요',3000);return}petAuto=!petAuto;$('bPet').classList.toggle('auto',petAuto);$('bPet').innerHTML=petAuto?'<b>R</b>자동':'<b>R</b>펫';tone('sine',petAuto?500:700,petAuto?900:400,.15,.04);tip(petAuto?'🐾 펫 자동 사냥 ON — 내 주변의 적을 펫이 스스로 찾아서 공격해요 (R 다시 누르면 해제)':'🐾 펫 자동 사냥 OFF — 내가 공격하는 몬스터를 펫이 같이 공격해요',3200);return}if(!force&&inVil(P.x,P.z)){tip('🏘️ 주민 마을에서는 펫 공격을 할 수 없어요',2000);return}const ps=folPets();if(!ps.length){tip('소환된 펫이 없어요 — 섬의 꼬마 친구에게 포획볼을 던져 잡아 보세요',3000);return}if(petCd>0&&!force)return;petCd=1.2;
   ps.forEach((e,i)=>atkOne(e,i,force||pickTarget(P.yaw+Math.PI),P.yaw+Math.PI));tone('sine',300,700,.15,.03)}
 function atkOne(e,i,tg,yaw){{const D=MT[e.type],ev=D.stage===2,melee=!D.el||D.el==='water'||D.el==='air';kiai(e.type,i*.07);if(tg)yaw=Math.atan2(tg.x-e.x,tg.z-e.z);
    if(melee){e.atk={ph:'run',t:0,tg,px:e.x+Math.sin(yaw)*4.5,pz:e.z+Math.cos(yaw)*4.5,st:MELEE_ST[e.type]||'headbutt',ev,el:D.el||'cute',yaw};fxSparks(e.x,e.y+.2,e.z,0xffffff,5,1.2,.26,.4,2);tone('triangle',500,800,.08,.04)}
    else e.atk={ph:'cast',t:0,yaw:tg?Math.atan2(tg.x-e.x,tg.z-e.z):yaw,ev,el:D.el,tg}}}
+var petAuto=false,petTg=null,petTgT=0;
+function petAssist(q){if(!q||q.pet||q.duelFoe||!mobs.includes(q))return;const D=MT[q.type];if(!D||D.npc||D.stat||D.critter||q.type==='villager'||q.type==='tourist')return;petTg=q;petTgT=10}
+const petRush=e=>{const D=MT[e.type];return(!D.el||D.el==='water'||D.el==='air')&&!D.fly};
+function mobAir(q){let g=groundAt(Math.floor(q.x),Math.floor(q.z));if(g<0)g=SEA+1;return q.y>g+1.5}
+function petCanHit(e,q){if(!q||!mobs.includes(q)||q.hp<=0||q.under)return false;if(petRush(e)&&mobAir(q))return false;return true}
+function petThink(dt){if(petTgT>0)petTgT-=dt;const ps=folPets();if(!ps.length||btl||duel||pDead||inVil(P.x,P.z))return;let tg=petTg&&petTgT>0&&mobs.includes(petTg)&&Math.hypot(petTg.x-P.x,petTg.z-P.z)<18?petTg:null;if(!tg)petTg=null;
+ ps.forEach((e,i)=>{e.acd=(e.acd||0)-dt;if(e.atk||e.dash||e.guard||e.acd>0)return;let t=tg&&petCanHit(e,tg)?tg:null;
+  if(!t&&petAuto){let bd=13;for(const q of mobs){if(!MT[q.type].hostile||q.pet||q.duelFoe||MT[q.type].npc||MT[q.type].stat||!petCanHit(e,q))continue;const d=Math.hypot(q.x-P.x,q.z-P.z);if(d<bd&&Math.abs(q.y-P.y)<8){bd=d;t=q}}}
+  if(!t)return;if(Math.hypot(t.x-e.x,t.z-e.z)>16)return;e.acd=1.5+Math.random()*.4;atkOne(e,i,t,Math.atan2(t.x-e.x,t.z-e.z))})}
 function petAtkTick(e,dt){const a=e.atk;a.t+=dt;const C=ELC[a.el]||ELC.cute;
   if(a.ph==='cast'){if(a.tg&&mobs.includes(a.tg))a.yaw=Math.atan2(a.tg.x-e.x,a.tg.z-e.z);e.castP=a.t<.3?a.t/.3:Math.max(0,1-(a.t-.3)/.15);if(a.t<.3&&Math.random()<dt*30)fxSparks(e.x,e.y+e.h*.6,e.z,C,1,.8,.24,.35,-1);
    if(a.t>=.3&&!a.fired){a.fired=true;e.atkT=.32;e.vy=4.5;fireEl(e,a.yaw,a.ev)}if(a.t>.6){e.atk=null;e.castP=0}return {yaw:a.yaw,want:0}}
@@ -2051,7 +2064,7 @@ function shootPlayerArrow(k,A){A=A||ARW[0];const AC=(A[3][0]<<16)|(A[3][1]<<8)|A
  tone('triangle',440,180,.14,.12);nz(.12,.2,'bandpass',1800,1.5)}
 function stepPArrows(dt){for(let i=pArrows.length-1;i>=0;i--){const a=pArrows[i];a.l-=dt;if(a.stuck){if(a.m.userData.st)a.m.userData.st.forEach(o=>o.visible=false);if(a.l<=0){scene.remove(a.m);a.m.traverse(o=>{if(o.geometry)o.geometry.dispose()});pArrows.splice(i,1)}continue}
   if(a.tg&&mobs.includes(a.tg)){const t=a.tg,sp=Math.hypot(a.vx,a.vy,a.vz),dx=t.x-a.x,dy=t.y+t.h*.55-a.y,dz=t.z-a.z,d=Math.hypot(dx,dy,dz)||1,q=Math.min(1,dt*7);a.vx+=(dx/d*sp-a.vx)*q;a.vy+=(dy/d*sp-a.vy)*q;a.vz+=(dz/d*sp-a.vz)*q}else a.vy-=5*dt;a.tr=(a.tr||0)+dt;if(a.tr>.014){a.tr=0;const g=fxGlow(a.k>.8?0xffc040:0xfff0b0,.5+a.k*.3);g.position.set(a.x,a.y,a.z);fxAdd(g,.45,(o,k)=>{o.material.opacity=(1-k)*.9;o.scale.setScalar((.5+a.k*.3)*(1-k*.75))});if(Math.random()<.5)fxSparks(a.x,a.y,a.z,a.k>.8?[0xffd060,0xffffff]:[0xfff4c0,0xffffff],1,.6,.16+a.k*.08,.4,0,STAR_TX)}a.x+=a.vx*dt;a.y+=a.vy*dt;a.z+=a.vz*dt;a.m.position.set(a.x,a.y,a.z);a.m.lookAt(a.x+a.vx,a.y+a.vy,a.z+a.vz);
-  let gone=a.l<=0;for(const e of mobs){if(e.pet||e.duelFoe||MT[e.type].npc||(MT[e.type].critter))continue;if(Math.hypot(e.x-a.x,e.z-a.z)<e.w+.35&&a.y>e.y-.1&&a.y<e.y+e.h+.1){hurtMob(e,Math.round((a.ad||4)*(.6+.4*a.k)*10)/10,{x:a.vx,z:a.vz},.35+a.k*.4);burst(a.x,a.y,a.z,[[255,255,255],[255,230,200]],4,2);fxFlash(a.x,a.y,a.z,0xfff0b0,1.6,.22);fxRing(a.x,a.y,a.z,0xffd060,1.4,.35,Math.atan2(a.vx,a.vz));fxSparks(a.x,a.y,a.z,[0xffe080,0xffffff],12,3.2,.26,.5,6,STAR_TX);punchSfx(false);gone=true;break}}
+  let gone=a.l<=0;for(const e of mobs){if(e.pet||e.duelFoe||MT[e.type].npc||(MT[e.type].critter))continue;if(Math.hypot(e.x-a.x,e.z-a.z)<e.w+.35&&a.y>e.y-.1&&a.y<e.y+e.h+.1){petAssist(e);hurtMob(e,Math.round((a.ad||4)*(.6+.4*a.k)*10)/10,{x:a.vx,z:a.vz},.35+a.k*.4);burst(a.x,a.y,a.z,[[255,255,255],[255,230,200]],4,2);fxFlash(a.x,a.y,a.z,0xfff0b0,1.6,.22);fxRing(a.x,a.y,a.z,0xffd060,1.4,.35,Math.atan2(a.vx,a.vz));fxSparks(a.x,a.y,a.z,[0xffe080,0xffffff],12,3.2,.26,.5,6,STAR_TX);punchSfx(false);gone=true;break}}
   if(!gone&&solidAt(Math.floor(a.x),Math.floor(a.y),Math.floor(a.z))){a.stuck=true;a.l=3;tone('triangle',300,200,.05,.05);continue}
   if(gone){scene.remove(a.m);a.m.traverse(o=>{if(o.geometry)o.geometry.dispose()});pArrows.splice(i,1)}}}
 function shootArrow(e){const sx=e.x,sy=e.y+1.5,sz=e.z,dx=P.x-sx,dy=P.y+1.2-sy,dz=P.z-sz,dist=Math.hypot(dx,dz),t=Math.max(.3,dist/15);
@@ -2124,6 +2137,16 @@ function updMob(e,dt){if(e.type==='tycoon'){e.t+=dt;e.yaw=e.face+Math.sin(e.t*.3
 /* ===== 차원문 · 공허의 섬 · 공허룡 · 펫 결투 ===== */
 function teleportTo(x,z,msg){instTpT=performance.now();if(riding)dismount();x=Math.floor(x);z=Math.floor(z);const y=wTop(x,z,BH-1);burst(P.x,P.y+1,P.z,[[190,110,255],[90,40,160],[255,255,255]],30,4);P.x=x+.5;P.z=z+.5;P.y=y;P.vx=P.vy=P.vz=0;P.top=P.y;P.glide=false;portalCd=2.5;
  fxFlash(P.x,P.y+1,P.z,0xc070ff,5,.6);fxRing(P.x,P.y+.1,P.z,0xb050ff,4,.7);shake=Math.max(shake,.25);[[392,0],[523,.08],[784,.16],[1046,.3]].forEach(([f,d])=>{tone('sine',f,f*1.5,.4,.05,d);tone('triangle',f/2,f,.5,.03,d)});for(const e of folPets()){e.x=P.x+1;e.z=P.z+1;e.y=P.y}if(msg)tip(msg,4200);saveDirty=true}
+function ppCells(S){const L=[[S.x,S.y,S.z,PORTAL],[S.x,S.y+1,S.z,PORTAL]];for(const[o,h]of[[-1,0],[-1,1],[-1,2],[1,0],[1,1],[1,2],[0,2]])L.push(S.a==='x'?[S.x+o,S.y+h,S.z,BASALT]:[S.x,S.y+h,S.z+o,BASALT]);return L}
+function ppOf(x,y,z){return(Q.pp||[]).find(S=>ppCells(S).some(c=>c[0]===x&&c[1]===y&&c[2]===z))}
+function openPPortal(x,y,z){if(!VOID){tip('지금은 공허의 섬과 연결되지 않아요',2000);return}if(!solidAt(x,y-1,z)){tip('차원문은 땅 위에 놓아야 해요',2000);return}
+ const a=Math.abs(Math.sin(P.yaw))>Math.abs(Math.cos(P.yaw))?'z':'x',S={x,y,z,a},C=ppCells(S);
+ for(const[cx,cy,cz]of C){if(cy>=BH||cx<0||cz<0||cx>=BW||cz>=BD){tip('차원문을 세울 자리가 없어요',2000);return}const q=get(cx,cy,cz);if(q&&q!==WATER&&!B[q].cross){tip('차원문을 세우려면 가로 3칸 · 높이 3칸이 비어 있어야 해요',2600);return}}
+ portalN--;buildBar();Q.pp=Q.pp||[];Q.pp.push(S);C.filter(c=>c[3]===BASALT).forEach(([cx,cy,cz],i)=>setB(cx,cy,cz,BASALT));
+ sfx('place',BASALT);[[196,0],[247,.12],[294,.24],[392,.4]].forEach(([q,d])=>tone('sawtooth',q,q*1.5,.4,.04,d));nz(.8,.2,'lowpass',700,1);
+ for(let k=0;k<6;k++)setTimeout(()=>{fxRing(x+.5,y+.1,z+.5,k%2?0xffffff:0xb050ff,1.2+k*.5,.5);fxSparks(x+.5,y+1,z+.5,[0xc070ff,0x7030c0,0xffffff],12,2,.4,.7,0,STAR_TX)},k*110);
+ setTimeout(()=>{setB(x,y,z,PORTAL);setB(x,y+1,z,PORTAL);fxFlash(x+.5,y+1,z+.5,0xc070ff,5,.4);shake=Math.max(shake,.12);tone('sine',140,520,.8,.06)},700);
+ portalCd=Math.max(portalCd,1.4);saveDirty=true;dropHot0();tip('🌀 그림자 차원문이 열렸어요! 보랏빛 소용돌이 안으로 걸어 들어가면 공허의 섬으로 가요',3600)}
 function portalTick(dt){if(portalCd>0){portalCd-=dt;return}if(pDead)return;const X=Math.floor(P.x),Z=Math.floor(P.z),Y=Math.floor(P.y);if(get(X,Y,Z)!==PORTAL&&get(X,Y+1,Z)!==PORTAL)return;
  if(inVoid(P.x,P.z)||inDemon(P.x,P.z)){const V=ISL.find(i=>i.t==='village')||ISL[0];let tx=V.x+3,tz=V.z+3;for(let k=0;k<40;k++){const a=Math.random()*6.28,r=2+Math.random()*V.r*.4,x=Math.floor(V.x+Math.cos(a)*r),z=Math.floor(V.z+Math.sin(a)*r),y=wTop(x,z,BH-1);if(y>SEA&&!get(x,y,z)&&!get(x,y+1,z)){tx=x;tz=z;break}}teleportTo(tx,tz,'🏡 주민 마을로 돌아왔어요!');return}
  if(!VOID)return;const first=!voidSeen;voidSeen=true;teleportTo(VOID.x+VOID.r*.6,VOID.z,dragonDown?'🌌 공허의 섬 — 조용하고 평화로워요':first?'🌌 숨겨진 공허의 섬에 도착했다… 하늘에서 공허룡이 날아온다! 활(Y)로 쏘아 맞혀요':'🌌 공허의 섬 — 공허룡이 기다리고 있어요!');if(!dragonDown)spawnT=Math.min(spawnT,.3)}
@@ -2320,12 +2343,12 @@ function survHud(head){let el=$('surv');if(!el){el=document.createElement('div')
  let d=$('dayB');if(!d){d=document.createElement('div');d.id='dayB';document.body.appendChild(d)}const dt2=`📅 ${gDay}일째 ${dayT<.5?'☀️':'🌙'}`;if(d.textContent!==dt2)d.textContent=dt2;d.hidden=paused}
 /* ===== v63: 연금술사 · 물약 ===== */
 var apot={potion_hp:0,potion_breath:0,potion_speed:0},speedBuff=0,hpPotCd=0;
-var ALP={potion_hp:{n:'체력 회복 물약',pr:15,hb:[['herb_r',2],['herb',1]],c:[230,60,80],d:'하트 4칸 즉시 회복 · 다시 마시려면 30초 기다려요'},potion_breath:{n:'수중 호흡 물약',pr:20,hb:[['herb_b',3]],c:[120,220,255],d:'게임 속 하루 동안 물속에서 산소가 줄지 않아요'},potion_speed:{n:'이동속도 상승 물약',pr:25,hb:[['herb',2],['herb_r',1],['herb_b',1]],c:[255,200,50],d:'게임 속 하루 동안 이동 속도 ×1.35'}};
+var ALP={potion_hp:{n:'체력 회복 물약',pr:15,hb:[['herb_r',2],['herb',1]],c:[230,60,80],d:'하트 4칸 즉시 회복 · 다시 마시려면 3초 기다려요'},potion_breath:{n:'수중 호흡 물약',pr:20,hb:[['herb_b',3]],c:[120,220,255],d:'게임 속 하루 동안 물속에서 산소가 줄지 않아요'},potion_speed:{n:'이동속도 상승 물약',pr:25,hb:[['herb',2],['herb_r',1],['herb_b',1]],c:[255,200,50],d:'게임 속 하루 동안 이동 속도 ×1.35'}};
 for(const k in ALP)ITEM[k]={kind:'orb',n:ALP[k].n};
 var potCells=k=>{const c=ALP[k].c;return POTCELL.map(([x,y,q])=>[x,y,q[2]>q[0]+60&&q[2]>150?[Math.min(255,c[0]*q[2]/255+(q[1]>200?60:0)),Math.min(255,c[1]*q[2]/255+(q[1]>200?60:0)),Math.min(255,c[2]*q[2]/255+(q[1]>200?60:0))]:q])};
 function useAPot(k){if(!(apot[k]>0)){tip('물약이 없어요 — 주민 마을 연금술사에게서 살 수 있어요',2200);dropHot0();return}
- if(k==='potion_hp'){const left=Math.ceil((hpPotCd-performance.now())/1000);if(left>0){tip(`❤️ 체력 회복 물약은 ${left}초 뒤에 다시 마실 수 있어요`,1600);return}if(hp>=hpMax){tip('체력이 가득 차 있어요',1400);return}hpPotCd=performance.now()+30000;hp=Math.min(hpMax,hp+8);drawHearts()}
- else if(k==='potion_breath'){breathBuff=DAY_SEC;o2=O2_MAX}else speedBuff=DAY_SEC;
+ if(k==='potion_hp'){const left=Math.ceil((hpPotCd-performance.now())/1000);if(left>0){tip(`❤️ 체력 회복 물약은 ${left}초 뒤에 다시 마실 수 있어요`,1600);return}if(hp>=hpMax){tip('체력이 가득 차 있어요',1400);return}hpPotCd=performance.now()+3000;hp=Math.min(hpMax,hp+8);drawHearts()}
+ else if(k==='potion_breath'){if(breathBuff>0){tip(`🫧 수중 호흡 효과가 아직 남아 있어요 (남은 시간 ${Math.floor(breathBuff/60)}:${String(Math.floor(breathBuff%60)).padStart(2,'0')}) — 끝난 뒤에 마실 수 있어요`,2000);return}breathBuff=DAY_SEC;o2=O2_MAX}else{if(speedBuff>0){tip(`💨 이동속도 효과가 아직 남아 있어요 (남은 시간 ${Math.floor(speedBuff/60)}:${String(Math.floor(speedBuff%60)).padStart(2,'0')}) — 끝난 뒤에 마실 수 있어요`,2000);return}speedBuff=DAY_SEC}
  apot[k]--;saveDirty=true;buildBar();dropHot0();const c=ALP[k].c;fxSparks(P.x,P.y+1,P.z,[(c[0]<<16)|(c[1]<<8)|c[2],0xffffff],22,2.2,.25,.9,-1.4,STAR_TX);[660,880,1175].forEach((q,i)=>tone('sine',q,q*1.02,.22,.05,i*.08));tip(`🧪 ${ALP[k].n}을(를) 마셨어요! ${ALP[k].d.split(' · ')[0]}`,2600);survHud()}
 var ALQ=[{t:'숲 섬의 보라 약초',isl:'forest',need:[['herb','보라 약초',4]],rw:60,say:'반갑네, 여행자여! 나는 마을 약국을 지키는 연금술사라네. 물약을 달이려면 여러 섬의 약초가 필요하지. 먼저 숲 섬 풀밭에 자란 보라 약초 4개를 캐 와 주겠나?'},
  {t:'사막 섬의 붉은 약초',isl:'desert',need:[['herb_r','붉은 약초',4]],rw:90,say:'훌륭해! 다음은 뜨거운 햇볕을 견딘 붉은 약초가 필요하다네. 사막 섬 모래밭에 자란 붉은 약초 4개를 캐 와 주게. 모래 속 샌드웜을 조심하게!'},
@@ -2433,6 +2456,17 @@ function personBody(e,c){const SK=c.sk,HR=c.hr,F=c.sx==='f';const root=new THREE
  else if(c.st==='spike'){for(let k=0;k<5;k++)bx(e,.1,.14,.1,HR,-.2+k*.1,.32,(k%2)*.08-.04,H)}
  bx(e,.5,.08,.06,HR,0,.2,.24,H);
  if(c.acc==='glass'){bx(e,.46,.09,.03,'#1a1a1a',0,.03,.26,H)}if(c.acc==='hat'){bx(e,.8,.04,.8,'#f0e0a0',0,.27,0,H);bx(e,.5,.14,.5,'#f0e0a0',0,.34,0,H);bx(e,.51,.05,.51,'#e04060',0,.3,0,H)}}
+MT.yeti={hp:42,w:.45,h:2.4,speed:2.5,hostile:1,sight:22,melee:5,reach:1.9,mcd:1.5,kill:'털복숭이 설인의 주먹에 맞았어요',build(e){const W='#eef2f6',W2='#dde5ee',W3='#c9d3de',F='#3c4a66';
+ for(const a of[1,-1]){const g=lb(e,.38,.8,.38,W2,a*.21,.8,0);bx(e,.42,.14,.46,F,0,-.76,.04,g);e.legs.push(g)}
+ bx(e,1,1.05,.7,W,0,1.32,0);bx(e,.62,.62,.06,W3,0,1.25,.36);for(let i=0;i<7;i++){const a=i/7*6.283;bx(e,.22,.28,.12,i%2?W2:W3,Math.sin(a)*.42,.82,Math.cos(a)*.3)}
+ for(const a of[1,-1]){bx(e,.42,.3,.5,W2,a*.5,1.88,0);const g=lb(e,.32,1.05,.34,W,a*.66,1.82,0);bx(e,.38,.28,.4,F,0,-1.08,0,g);bx(e,.36,.2,.12,W3,0,-.6,.15,g);e.arms.push(g)}
+ const h=e.head=bx(e,.66,.6,.6,W,0,2.12,0);bx(e,.46,.36,.04,F,0,-.06,.3,h);for(const a of[1,-1]){bx(e,.1,.07,.02,'#9fe8ff',a*.11,.03,.325,h);bx(e,.13,.04,.02,'#1a2030',a*.11,.1,.322,h);const hn=bx(e,.09,.24,.09,'#b8a070',a*.3,.36,-.02,h);hn.rotation.z=-a*.5;bx(e,.06,.08,.02,'#fff',a*.07,-.17,.33,h)}
+ bx(e,.24,.05,.02,'#1a2030',0,-.14,.322,h);bx(e,.7,.16,.62,W2,0,.3,0,h);bx(e,.5,.08,.08,W3,0,.15,.31,h);for(const a of[1,-1]){bx(e,.12,.34,.5,W2,a*.36,-.05,-.02,h);bx(e,.18,.12,.14,W3,a*.16,-.33,.24,h)}
+ for(let i=0;i<22;i++){const q=h3(i,7,3),r=h3(i,9,4),side=i%3,y=.95+q*.85,c=[W2,W3,'#ffffff'][i%3];if(side===0)bx(e,.16+r*.1,.2+q*.12,.1,c,(r-.5)*.85,y,.36);else bx(e,.1,.2+q*.12,.16+r*.1,c,(side===1?1:-1)*.51,y,(r-.5)*.55)}
+ for(const A of e.arms)for(let i=0;i<4;i++)bx(e,.38,.12,.4,i%2?W2:W3,0,-.2-i*.22,0,A)}};
+var yetiT=8;function yetiTick(dt){const S=ISL.find(i=>i.t==='snow');if(!S||!monsters||pDead)return;const dd=Math.hypot(S.x-P.x,S.z-P.z);if(dd>S.r+24)return;yetiT-=dt;if(yetiT>0)return;
+ const n=mobs.filter(e=>e.type==='yeti').length,mx=nightNow?4:3;if(n>=mx){yetiT=4;return}yetiT=n<2?6+Math.random()*6:14+Math.random()*12;
+ for(let k=0;k<20;k++){const a=Math.random()*6.283,r=S.r*(.2+Math.random()*.6),x=S.x+Math.cos(a)*r,z=S.z+Math.sin(a)*r;if(Math.hypot(x-P.x,z-P.z)<12)continue;const g=groundAt(Math.floor(x),Math.floor(z));if(g<=SEA+1)continue;const e=addMob('yeti',x,z,true);if(e){fxSparks(e.x,e.y+1,e.z,[0xffffff,0xcfe8ff],14,2,.4,.8,2);if(dd<S.r+6&&Math.random()<.5){tone('sawtooth',130,70,.8,.06);tip('❄️ 어디선가 설인의 포효가 들려와요…',2600)}return}}}
 MT.tourist={hp:99,w:.3,h:1.9,speed:0,npc:1,build(e){const c=window.__tcfg;e.cfg=c;personBody(e,c);npcLabel(e,'🏖️ '+c.n,'#ffe8a0')}};
 MT.surfer={hp:99,w:.3,h:1.9,speed:0,npc:1,build(e){const c=window.__tcfg;e.cfg=c;personBody(e,c);const bd=new THREE.Group();e.g.add(bd);e.board=bd;const m=bx(e,.62,.08,2.2,c.board,0,0,0,bd);bx(e,.2,.085,1.9,'#ffffff',0,.005,0,bd);bx(e,.4,.08,.3,c.board,0,0,1.15,bd);const fin=bx(e,.04,.22,.2,'#2a2a2a',0,-.14,-.85,bd);
  e.root.position.y=.08;e.root.rotation.y=Math.PI/2;e.legs[0].rotation.z=.25;e.legs[1].rotation.z=-.25;e.arms[0].rotation.z=1.2;e.arms[1].rotation.z=-1.2;npcLabel(e,'🏄 '+c.n,'#a0e8ff')}};
@@ -2476,23 +2510,31 @@ MT.tycoon={hp:99,w:.3,h:1.9,speed:0,npc:1,build(e){const c={sx:'m',sk:'#e8c4a0',
 function gdState(){return Q.gd===3?'':!Q.gd?'?':'…'}
 var gdSpawnT=0,gdSayT=0;
 function gdHud(){let h=$('gdHud');if(!h){h=document.createElement('div');h.id='gdHud';h.style.cssText='position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 58px);transform:translateX(-50%);z-index:9997;background:#000a;border:2px solid #ffd860;border-radius:12px;padding:4px 12px;color:#fff;font:700 13px "Noto Sans KR",sans-serif;text-align:center;pointer-events:none;white-space:nowrap';document.body.appendChild(h)}
- if(Q.gd!==2){h.style.display='none';return}h.style.display='block';const T=mobs.filter(m=>m.type==='tourist');let w=null;for(const m of T)if(m.thp==null)m.thp=4;for(const m of T)if(!w||m.thp<w.thp)w=m;const hs=w?'❤️'.repeat(w.thp)+'🖤'.repeat(4-w.thp):'';const rem=Math.max(0,(Q.gdE||0)-gDay-dayT),pr=Math.round((1-rem/2)*100);const tot=TOURS.length;h.innerHTML=`${nightNow?'🌙':'☀️'} 해변 경비 ${pr}% · 남은 시간 ${(q=>(q>=24?Math.floor(q/24)+'일 ':'')+q%24+'시간')(Math.ceil(rem*24))} · 처치 ${Q.gdK||0}마리 · 휴양객 ${T.length}/${tot}명 무사<div style="height:5px;background:#333;border-radius:3px;margin-top:3px;overflow:hidden"><i style="display:block;height:100%;width:${pr}%;background:#ffd860"></i></div>`+(w&&w.thp<4?`<div style="font-size:12px;margin-top:2px">⚠️ 위험: ${w.cfg.n} ${hs}</div>`:'')}
+ if(Q.gd!==2){h.style.display='none';return}h.style.display='block';const T=mobs.filter(m=>m.type==='tourist');let w=null;for(const m of T)if(m.thp==null)m.thp=TOUR_HP;for(const m of T)if(!w||m.thp<w.thp)w=m;const hs=w?'❤️'.repeat(Math.ceil(w.thp/2))+'🖤'.repeat(5-Math.ceil(w.thp/2)):'';const rem=Math.max(0,(Q.gdE||0)-gDay-dayT),pr=Math.round((1-rem/2)*100);const tot=TOURS.length;h.innerHTML=`${nightNow?'🌙':'☀️'} 해변 경비 ${pr}% · 남은 시간 ${(q=>(q>=24?Math.floor(q/24)+'일 ':'')+q%24+'시간')(Math.ceil(rem*24))} · 처치 ${Q.gdK||0}마리 · 휴양객 ${T.length}/${tot}명 무사<div style="height:5px;background:#333;border-radius:3px;margin-top:3px;overflow:hidden"><i style="display:block;height:100%;width:${pr}%;background:#ffd860"></i></div>`+(w&&w.thp<4?`<div style="font-size:12px;margin-top:2px">⚠️ 위험: ${w.cfg.n} ${hs}</div>`:'')}
 function raidAim(e,dt,dist){if(Q.gd!==2||dist<3.2)return false;let T=null,bd=1e9;for(const m of mobs)if(m.type==='tourist'){const d=Math.hypot(m.x-e.x,m.z-e.z);if(d<bd){bd=d;T=m}}if(!T)return false;
  e.rYaw=Math.atan2(T.x-e.x,T.z-e.z);e.rW=bd<1.1?0:MT[e.type].speed*1.15;e.rCd=(e.rCd||0)-dt;
- if(bd<1.4&&e.rCd<=0){e.rCd=1.3;if(e.arms)e.arms.forEach(a=>a.rotation.x=-1.6);if(T.thp==null)T.thp=4;T.thp--;T.hitT=.35;fxSparks(T.x,T.y+1,T.z,[0xff4040,0xffffff],8,1.6,.25,.5,3);tone('square',380,160,.12,.05);gdHud();
-  if(performance.now()-gdSayT>5000){gdSayT=performance.now();tip(`😱 ${T.cfg.n}: “${['살려 주세요! 몬스터가 나타났어요!','으악! 저리 가!','경비원님, 여기예요!! 도와주세요!'][Math.floor(Math.random()*3)]}”`,2600)}
+ if(bd<1.4&&e.rCd<=0){e.rCd=2.4;if(e.arms)e.arms.forEach(a=>a.rotation.x=-1.6);if(T.thp==null)T.thp=TOUR_HP;T.thp--;T.hitT=.35;fxSparks(T.x,T.y+1,T.z,[0xff4040,0xffffff],8,1.6,.25,.5,3);tone('square',380,160,.12,.05);gdHud();
+  if(performance.now()-gdSayT>4000){gdSayT=performance.now();const ddx=T.x-P.x,ddz=T.z-P.z,dn=Math.hypot(ddx,ddz),A=Math.atan2(ddx,-ddz),D8=['북','북동','동','남동','남','남서','서','북서'][((Math.round(A/(Math.PI/4))%8)+8)%8];tip(`😱 ${T.cfg.n}: “${['살려 주세요! 몬스터가 나타났어요!','으악! 저리 가!','경비원님, 여기예요!! 도와주세요!'][Math.floor(Math.random()*3)]}” — 📍${D8}쪽 ${Math.round(dn)}m`,3000)}
   if(T.thp<=0){T.dead=1;fxSparks(T.x,T.y+1,T.z,[0xffffff,0xaaaaaa],20,2,.4,.8,2);gdFail(`${T.cfg.n} 님이 몬스터에게 쓰러졌어요`)}}return true}
-function gdFail(why){if(Q.gd!==2)return;Q.gd=0;saveDirty=true;for(const m of mobs.slice())if(m.raid)removeMob(m);for(const m of mobs)if(m.type==='tourist'){m.thp=4;m.dead=0}gdHud();qFailFx();tip(`💔 퀘스트 실패 「낙원의 이틀 경비」 — ${why}. 해변의 골드먼 회장에게 다시 퀘스트를 받아 새로 시작해요`,7000)}
+const TOUR_HP=10;
+function gdFail(why){if(Q.gd!==2)return;Q.gd=0;saveDirty=true;for(const m of mobs.slice())if(m.raid)removeMob(m);for(const m of mobs)if(m.type==='tourist'){m.thp=TOUR_HP;m.dead=0}gdHud();qFailFx();tip(`💔 퀘스트 실패 「낙원의 이틀 경비」 — ${why}. 해변의 골드먼 회장에게 다시 퀘스트를 받아 새로 시작해요`,7000)}
 function qFailFx(){let b=$('qFail');if(!b){b=document.createElement('div');b.id='qFail';b.style.cssText='position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:9999;padding:14px 34px;border-radius:14px;background:#200a0ad8;border:3px solid #ff5a5a;color:#ff8080;font:900 34px "Noto Sans KR",sans-serif;letter-spacing:2px;text-shadow:0 3px 0 #000;pointer-events:none;transition:opacity .6s';b.textContent='QUEST FAILED';document.body.appendChild(b)}b.style.opacity=1;clearTimeout(b._t);b._t=setTimeout(()=>b.style.opacity=0,2600);[[300,0],[240,.18],[180,.36]].forEach(([f,t])=>tone('square',f,f*.9,.25,.06,t))}
+var VW={ph:'rest',t:3,q:0,sp:0,big:false};
+function volcTick(dt){const V=volc();if(!V||!monsters||pDead||inMagma())return;const dd=Math.hypot(V.x-P.x,V.z-P.z);if(dd>V.r+22)return;const mine=mobs.filter(e=>e.volc);
+ if(VW.ph==='rest'){VW.t-=dt;if(VW.t<=0){VW.ph='wave';VW.big=Math.random()<.4;VW.q=VW.big?7+(Math.random()*3|0):3+(Math.random()*2|0);VW.sp=.5;VW.iv=VW.big?1.6:3.4;if(VW.big&&dd<V.r+6)tip('🌋 화산이 우르릉거려요… 몬스터 무리가 몰려와요!',3000)}return}
+ VW.sp-=dt;if(VW.q>0&&VW.sp<=0&&mine.length<(VW.big?6:3)){VW.sp=VW.iv*(.7+Math.random()*.6);if(volcSpawnOne(V)){VW.q--;return}}
+ if(VW.q<=0&&!mine.length){VW.ph='rest';VW.t=VW.big?28+Math.random()*14:12+Math.random()*10;if(VW.big&&dd<V.r+6)tip('🌋 몬스터 무리를 물리쳤어요 — 화산섬이 잠시 잠잠해졌어요',2600)}}
+function volcSpawnOne(V){const R=V.r*.86,Rc=V.rc||R*.56,r=Math.random();let t,lo,hi;if(r<.65){t=Math.random()<.55?'shade':'jelly';lo=Rc+1.5;hi=R-4}else{t='magma';lo=5.5;hi=Rc-1}
+ for(let k=0;k<16;k++){const a=Math.random()*6.283,d=lo+Math.random()*(hi-lo),x=V.x+Math.cos(a)*d,z=V.z+Math.sin(a)*d;if(Math.hypot(x-P.x,z-P.z)<7)continue;const e=addMob(t,x,z,true);if(e){e.volc=1;burst(e.x,e.y+.5,e.z,[[255,120,30],[60,40,40]],8,2);return e}}return null}
 function gdTick(dt){if(!Q.gd||Q.gd===3)return;const F=ISL.find(i=>i.t==='forest');if(!F)return;const d=Math.hypot(P.x-F.x,P.z-F.z);
  for(const m of mobs)if(m.type==='tourist'&&m.hitT>0){m.hitT-=dt;const k=Math.max(0,m.hitT);m.mats.forEach(q=>q.emissive&&q.emissive.setRGB(k*1.8,0,0))}
  if(Q.gd===1){Q.gd=0}
- if(Q.gd===-1){if(RES&&mobs.some(m=>m.type==='tourist')){Q.gd=2;Q.gdS=100;Q.gdK=0;Q.gdE=gDay+dayT+2;for(const m of mobs)if(m.type==='tourist'){m.thp=4;m.dead=0}gdSpawnT=2;saveDirty=true;gdHud();tip('🚨 경고! 휴양섬 해변에 몬스터들이 출몰하기 시작했어요! — 이틀 밤낮 동안 휴양객들을 지켜요!',5200);[[220,0],[180,.2],[150,.4]].forEach(([f,t])=>tone('sawtooth',f,f*.8,.3,.06,t))}return}
+ if(Q.gd===-1){if(RES&&mobs.some(m=>m.type==='tourist')){Q.gd=2;Q.gdS=100;Q.gdK=0;Q.gdE=gDay+dayT+2;for(const m of mobs)if(m.type==='tourist'){m.thp=TOUR_HP;m.dead=0}gdSpawnT=2;saveDirty=true;gdHud();tip('🚨 경고! 휴양섬 해변에 몬스터들이 출몰하기 시작했어요! — 이틀 밤낮 동안 휴양객들을 지켜요!',5200);[[220,0],[180,.2],[150,.4]].forEach(([f,t])=>tone('sawtooth',f,f*.8,.3,.06,t))}return}
  if(Q.gd===2){const hh=$('gdHud');if(!hh||hh.style.display==='none')gdHud();if(d>F.r+60){gdFail('경비 중에 섬을 떠났어요');return}if(pDead){gdFail('내가 쓰러졌어요');return}
   gdHud.t=(gdHud.t||0)+dt;if(gdHud.t>1){gdHud.t=0;gdHud()}
   if(gDay+dayT>=Q.gdE){Q.gd=3;saveDirty=true;for(const m of mobs.slice())if(m.raid)removeMob(m);gdHud();mats.coin=(mats.coin||0)+3000;mats.diamond=(mats.diamond||0)+5;coinSfx();buildBar();Q.done.push({t:'골드먼 회장 · 낙원의 이틀 경비',rw:'코인 3000개 · 다이아몬드 5개',side:true});
    qCelebrate(`이틀 밤낮을 버텨냈어요! 휴양객들을 모두 무사히 지켜냈어요 (처치 ${Q.gdK||0}마리)`);setTimeout(()=>tip('💎 골드먼 회장: “브라보! 역시 내 눈은 틀리지 않았어. 약속한 보수일세 — 코인 3000개와 내 금고의 다이아몬드 5개! 이 정도는 내게 아침 커피값이지. 허허허!”',7000),3300);return}
-  gdSpawnT-=dt;const alive=mobs.filter(m=>m.raid).length;if(gdSpawnT<=0&&alive<8&&RES&&RES.spots.length){gdSpawnT=5+Math.random()*2.5;const n=Math.random()<.4?2:1;
+  gdSpawnT-=dt;const alive=mobs.filter(m=>m.raid).length;if(gdSpawnT<=0&&alive<2&&RES&&RES.spots.length){gdSpawnT=6+Math.random()*4;const n=1;
    for(let i=0;i<n;i++){const sp=RES.spots[Math.floor(Math.random()*RES.spots.length)],x=sp.out[0]+.5,z=sp.out[1]+.5;if(Math.hypot(x-P.x,z-P.z)<5)continue;const t=Math.random()<.25?'spider':'zombie';const m=addMobAt(t,x,SEA+1.2,z);m.raid=1;burst(x,SEA+1,z,[[200,230,255],[255,255,255]],12,2)}}}}
 function drawTycoon(L){$('shopT').textContent='💎 백만장자 골드먼 회장';$('shopCoin').textContent=Q.gd===3?'⭐ VIP 손님':'🏝️ 골드먼 리조트';$('shopTabs').innerHTML='';const say=t=>{const p=document.createElement('p');p.className='qsay';p.textContent='“'+t+'”';L.appendChild(p)};
  if(Q.gd===3){say('오, 나의 VIP 경비원! 자네 덕분에 손님들이 밤새 편히 잤다네. 내 낙원엔 언제든 환영이야. 필요한 게 있으면 말만 하게 — 돈이라면 넘쳐나니까. 허허!');return}
@@ -3350,7 +3392,7 @@ function nagaKill(e){const t=e.type;if(t==='naga'){if(Q.naa&&Q.na===1){Q.nk=(Q.n
  if(t==='nagaq'){for(const s of nagaShots)scene.remove(s.m);nagaShots.length=0;for(const m of mobs.slice())if(m.type==='naga'){burst(m.x,m.y+1,m.z,[[80,220,200],[40,140,120]],8,2);removeMob(m)}if(Q.na===2&&!Q.qi.trident)qItemGet('trident','🔱 나가 여왕의 삼지창을 얻었어요! 주민 마을 장로에게 가져가요',0x60f0e0);mats.coin=(mats.coin||0)+100;setTimeout(()=>tip('🔱 나가 여왕을 물리쳤다! 코인 +100',3600),600)}}
 
 let spawnT=0;
-function stepMobs(dt){buildTick();nagaFrame(dt);demonGuard(dt);rPortalTick(dt);deepTick(dt);skyPortalTick(dt);questTick(dt);orcCannonTick(dt);structSync(dt);siegeCtl(dt);stepTShots(dt);gearAura(dt);if(orbT>0)orbT-=dt;if(petCd>0)petCd-=dt;portalTick(dt);duelTick(dt);btlTick(dt);bossHud();stepHeartFx(dt);stepPetShots(dt);stepBalls(dt);for(const e of mobs.slice())updMob(e,dt);campTick(dt);krakGrabTick(dt);try{tabletTick(dt);arCastTick(dt);doorTick(dt);acidTick(dt);smTick(dt);resortTick(dt);tycoonNpc();gdTick(dt)}catch(_){};stepShadows(dt);stepArrows(dt);stepFires(dt);stepPArrows(dt);
+function stepMobs(dt){buildTick();nagaFrame(dt);demonGuard(dt);rPortalTick(dt);deepTick(dt);skyPortalTick(dt);questTick(dt);orcCannonTick(dt);structSync(dt);siegeCtl(dt);stepTShots(dt);gearAura(dt);if(orbT>0)orbT-=dt;if(petCd>0)petCd-=dt;portalTick(dt);petThink(dt);duelTick(dt);btlTick(dt);bossHud();stepHeartFx(dt);stepPetShots(dt);stepBalls(dt);for(const e of mobs.slice())updMob(e,dt);campTick(dt);krakGrabTick(dt);try{tabletTick(dt);arCastTick(dt);doorTick(dt);acidTick(dt);smTick(dt);resortTick(dt);tycoonNpc();gdTick(dt);volcTick(dt);yetiTick(dt)}catch(_){};stepShadows(dt);stepArrows(dt);stepFires(dt);stepPArrows(dt);
  regenT+=dt;if(regenT>DIFF[diff].regen){regenT=0;if(hp<hpMax&&hp>0&&sat>0){hp++;drawHearts()}}
  spawnT-=dt;if(spawnT>0)return;spawnT=DIFF[diff].spawn;
  if(inDemon(P.x,P.z)){demonSpawn();return}{const V=volc();if(V&&!volTip&&Math.hypot(P.x-V.x,P.z-V.z)<V.r+2&&P.y>SEA){volTip=true;tip('🌋 화산섬의 몬스터를 처치하면 포탈 게이지가 차요 — 100%가 되면 화산 꼭대기에 「화산 심장부」로 가는 포탈이 열려요',6000)}}if(inMagma()){if(!mobs.some(e=>e.type==='magmalord')&&performance.now()>heartTipT){heartTipT=performance.now()+20000;tip('🌋 용암 지대가 조용해요… 마그마 군주는 화산 꼭대기 포탈로 「화산 심장부」에 들어가야 나타나요',4500)}return}if(inOrc(P.x,P.z)){orcSpawn();return}
@@ -3362,7 +3404,7 @@ function stepMobs(dt){buildTick();nagaFrame(dt);demonGuard(dt);rPortalTick(dt);d
  for(const e of mobs.slice()){const D=MT[e.type];if(e.pet||e.caught||e.duelFoe||D.hostile||D.npc||D.sea||D.swim||D.critter||D.stat||e.type==='villager'||e.type==='boat')continue;if(animCovered(e.x,e.y,e.z))removeMob(e)}
  if(animals<34){const a=Math.random()*6.28,r=26+Math.random()*20,cows=mobs.filter(e=>e.type==='cow'&&Math.hypot(e.x-P.x,e.z-P.z)<60).length;if(!inVil(P.x+Math.cos(a)*r,P.z+Math.sin(a)*r))addMob(cows<4||Math.random()<.32?'cow':['pig','sheep','chicken','duck','duck'][Math.random()*5|0],P.x+Math.cos(a)*r,P.z+Math.sin(a)*r)}
  {const V=ISL.find(i=>i.t==='village');let need=6-mobs.filter(e=>e.type==='villager').length;if(V&&need>0&&Math.hypot(V.x-P.x,V.z-P.z)<80){for(let k=0;k<60&&need>0;k++){const a=Math.random()*6.28,r=4+Math.random()*V.r*.55,m=addMob('villager',V.x+Math.cos(a)*r,V.z+Math.sin(a)*r);if(m){m.home={x:V.x,z:V.z,r:V.r*.6};need--}}}}
- {const V=ISL.find(i=>i.t==='volcano');if(V&&monsters&&Math.hypot(V.x-P.x,V.z-P.z)<V.r+18){for(const[t,mx]of[['shade',3],['jelly',2]]){if(mobs.filter(e=>e.type===t).length<mx){for(let k=0;k<12;k++){const a=Math.random()*6.28,r=V.r*(.35+Math.random()*.5);if(addMob(t,V.x+Math.cos(a)*r,V.z+Math.sin(a)*r,true))break}}}}}
+ 
  try{wormSpawnTick()}catch(_){};spawnWild();villageNpcs();islNpcs();alchNpc();try{archNpc();beeSpawnTick();vprinNpc()}catch(_){};try{alHerbTick()}catch(_){};scoutTick();seaBossTick();for(const e of mobs.slice())if((MT[e.type].wild||MT[e.type].sea)&&Math.hypot(e.x-P.x,e.z-P.z)>80)removeMob(e);
  for(const e of host)if(Math.hypot(e.x-P.x,e.z-P.z)>64)removeMob(e);
  const VV=ISL.find(i=>i.t==='village');
