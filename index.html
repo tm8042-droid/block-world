@@ -375,7 +375,7 @@ body.touch :is(#btns,#dpad,#shL,#shR,#joy,#joyR,#bPet){opacity:.45} body.touch :
 <div id="petHud"></div>
 <div id="top"><button class="tb" id="bMap">지도</button><button class="tb" id="bCraft">제작</button><button class="tb" id="bInv">가방</button><button class="tb" id="bMenu" aria-label="메뉴">≡</button></div>
 <div class="ovl" id="menu">
- <div class="logoW wow"><div class="wowT"><div class="wowS"><span>월드</span><i>◆</i><span>오브</span></div><h1 class="logo">블록크래프트</h1><div class="logoEn">WORLD OF BLOCKCRAFT</div><div class="wowV">v90</div></div></div>
+ <div class="logoW wow"><div class="wowT"><div class="wowS"><span>월드</span><i>◆</i><span>오브</span></div><h1 class="logo">블록크래프트</h1><div class="logoEn">WORLD OF BLOCKCRAFT</div><div class="wowV">v91</div></div></div>
  <p class="sub">상상하는 대로 짓고, 부수고, 탐험하자!</p>
  <button class="mbtn green" id="mCont" hidden>계속하기</button>
  <button class="mbtn" id="mNew">새 세계 만들기</button>
@@ -1649,7 +1649,7 @@ document.querySelectorAll('[data-b]').forEach(b=>{const k=b.dataset.b;
   if(rs.id===null){if((rx||ry)&&!menu){useR=true;$('knobR').style.transform=`translate(${rx*36}px,${ry*36}px)`;P.yaw-=rx*Math.abs(rx)*3.2*dt;P.pitch-=ry*Math.abs(ry)*2.2*dt;P.pitch=Math.max(-1.55,Math.min(1.55,P.pitch))}else if(useR){useR=false;$('knobR').style.transform=''}}})(gl)}
 
 /* ================= mobs ================= */
-let diff=1;const DIFF=[{n:'평화로움',dmg:0,max:0,spawn:9,regen:1,spd:1,d:'몬스터가 나오지 않고 체력이 빨리 차요'},{n:'약간 어려움',dmg:.6,max:5,spawn:3.5,regen:4,spd:1,d:'몬스터가 조금 나오고 약하게 때려요'},{n:'어려움',dmg:1.5,max:12,spawn:1.4,regen:7,spd:1.18,d:'몬스터가 많고 세고 빨라요!'},{n:'쉬움',dmg:.3,max:3,spawn:5.5,regen:2.5,spd:.85,d:'몬스터가 가끔 나오고 아주 약하게 때려요'}];
+let diff=1;const DIFF=[{n:'평화로움',dmg:0,max:0,spawn:9,regen:1,spd:1,d:'몬스터가 나오지 않아요'},{n:'약간 어려움',dmg:.6,max:5,spawn:3.5,regen:4,spd:1,d:'몬스터가 조금 나오고 약하게 때려요'},{n:'어려움',dmg:1.5,max:12,spawn:1.4,regen:7,spd:1.18,d:'몬스터가 많고 세고 빨라요!'},{n:'쉬움',dmg:.3,max:3,spawn:5.5,regen:2.5,spd:.85,d:'몬스터가 가끔 나오고 아주 약하게 때려요'}];
 let hpMax=20,home=null,hp=20,pDead=false,monsters=true,dayNow=true,nightNow=false,regenT=0;
 const amb=new THREE.AmbientLight(0xffffff,.55),dl=new THREE.DirectionalLight(0xffffff,.7),hemi=new THREE.HemisphereLight(0xdcefff,0x5a4630,.3);scene.add(amb,dl,hemi);
 const heart=f=>`<svg viewBox="0 0 9 8"><path d="M1 0h2v1h1v1h1V1h1V0h2v1h1v3H8v1H7v1H6v1H5v1H4V7H3V6H2V5H1V4H0V1h1z" fill="#2a0a0a"/>${f?`<clipPath id="hc${f}"><rect width="${f===1?4.5:9}" height="8"/></clipPath><path clip-path="url(#hc${f})" d="M1 1h2v1h1v1h1V2h1V1h2v3H7v1H6v1H5v1H4V6H3V5H2V4H1z" fill="#e8282a"/><rect x="2" y="2" width="1" height="1" fill="#ffb3b3"/>`:''}</svg>`;
@@ -3458,7 +3458,7 @@ function nagaKill(e){const t=e.type;if(t==='naga'){if(Q.naa&&Q.na===1){Q.nk=(Q.n
 
 let spawnT=0;
 function stepMobs(dt){buildTick();nagaFrame(dt);demonGuard(dt);rPortalTick(dt);deepTick(dt);skyPortalTick(dt);questTick(dt);orcCannonTick(dt);structSync(dt);siegeCtl(dt);stepTShots(dt);gearAura(dt);if(orbT>0)orbT-=dt;if(petCd>0)petCd-=dt;portalTick(dt);petThink(dt);duelTick(dt);btlTick(dt);bossHud();stepHeartFx(dt);stepPetShots(dt);stepBalls(dt);for(const e of mobs.slice())updMob(e,dt);campTick(dt);krakGrabTick(dt);try{tabletTick(dt);arCastTick(dt);doorTick(dt);acidTick(dt);smTick(dt);resortTick(dt);tycoonNpc();hotelNpc();gdTick(dt);volcTick(dt);yetiTick(dt)}catch(_){};stepShadows(dt);stepArrows(dt);stepFires(dt);stepPArrows(dt);
- regenT+=dt;if(regenT>DIFF[diff].regen){regenT=0;if(hp<hpMax&&hp>0&&sat>0){hp++;drawHearts()}}
+ {const mv=Math.hypot(P.x-(stepMobs.rx??P.x),P.z-(stepMobs.rz??P.z))+Math.abs(P.y-(stepMobs.ry??P.y));stepMobs.rx=P.x;stepMobs.ry=P.y;stepMobs.rz=P.z;if(mine||primaryHeld||bowing||swingT<1)stepMobs.mt=performance.now();if(mv>dt*.25||performance.now()-lastAtk<1500||performance.now()-(stepMobs.mt||0)<1500||riding||pDead||hp>=hpMax)regenT=0;else{regenT+=dt;if(regenT>=60){regenT=0;if(hp>0&&sat>0){hp++;drawHearts();fxSparks(P.x,P.y+1.2,P.z,[0xff6080,0xffffff],6,1,.2,.5,-1,STAR_TX)}}}}
  spawnT-=dt;if(spawnT>0)return;spawnT=DIFF[diff].spawn;
  if(inDemon(P.x,P.z)){demonSpawn();return}{const V=volc();if(V&&!volTip&&Math.hypot(P.x-V.x,P.z-V.z)<V.r+2&&P.y>SEA){volTip=true;tip('🌋 화산섬의 몬스터를 처치하면 포탈 게이지가 차요 — 100%가 되면 화산 꼭대기에 「화산 심장부」로 가는 포탈이 열려요',6000)}}if(inMagma()){if(!mobs.some(e=>e.type==='magmalord')&&performance.now()>heartTipT){heartTipT=performance.now()+20000;tip('🌋 용암 지대가 조용해요… 마그마 군주는 화산 꼭대기 포탈로 「화산 심장부」에 들어가야 나타나요',4500)}return}if(inOrc(P.x,P.z)){orcSpawn();return}
  if(inVoid(P.x,P.z)){if((!dragonDown||qWant('dhead')||bossReady('dragon'))&&!mobs.some(e=>e.type==='vdragon'))spawnDragon();for(const e of mobs.slice())if(MT[e.type].hostile&&e.type!=='vdragon')removeMob(e);return}
